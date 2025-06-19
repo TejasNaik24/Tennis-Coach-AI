@@ -1,0 +1,65 @@
+#inputquery-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  position: fixed;
+  bottom: 35px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50%;
+  max-width: 800px;
+  padding: 0 1rem;
+}
+
+
+#mute-button, #send-button, #clear-button {
+    font-size: 1.5rem;
+    border-color: white;
+    border-width: 3px;
+    background-color: yellow;
+    color: darkblue;
+    cursor: pointer;
+}
+
+#mute-button {
+    width: 85px;
+    height: 40px;
+    border-radius: 10px;
+}
+
+#send-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 15px;
+}
+
+#clear-button {
+    width: 85px;
+    height: 40px;
+    border-radius: 10px;
+}
+
+#chat-input {
+  resize: none;
+  overflow-y: hidden;
+  min-height: 45px;
+  max-height: 200px;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border-radius: 10px;
+  border: 2px solid white;
+  outline: none;
+  caret-color: green;
+  line-height: 1.5;
+  box-sizing: border-box;
+  background-color: yellow;
+  transition: height 0.1s ease-out;
+  flex: 1;
+}
+
+textarea::placeholder {
+    color: black;
+    opacity: 0.6;
+  }
