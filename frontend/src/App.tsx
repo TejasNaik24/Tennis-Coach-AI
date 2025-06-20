@@ -1,6 +1,6 @@
-import Header from './Header.tsx'
-import InputQuery from './InputQuery.tsx'
-import ChatBox from './ChatBox.tsx'
+import Header from './Components/Header.tsx'
+import InputQuery from './Components/InputQuery.tsx'
+import ChatBox from './Components/ChatBox.tsx'
 
 
 function App() {
