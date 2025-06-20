@@ -1,7 +1,7 @@
 #inputquery-container {
   display: flex;
   justify-content: center;
-  align-items: flex-end;
+  align-items: center;
   gap: 0.8rem;
   flex-wrap: wrap;
   position: fixed;
@@ -15,51 +15,68 @@
 
 
 #mute-button, #send-button, #clear-button {
-    font-size: 1.5rem;
-    border-color: white;
-    border-width: 3px;
-    background-color: yellow;
-    color: darkblue;
-    cursor: pointer;
+  font-size: 1.5rem;
+  border-color: white;
+  border-width: 3px;
+  color: darkblue;
+  cursor: pointer;
+  border-radius: 25px;
 }
 
 #mute-button {
-    width: 85px;
-    height: 40px;
-    border-radius: 10px;
+  width: 85px;
+  height: 45px;
+  background-color: orange;
 }
 
 #send-button {
-    width: 40px;
-    height: 40px;
-    border-radius: 15px;
+  position: absolute;
+  right: 1%;
+  bottom: 12%;
+  width: 40px;
+  height: 40px;
+  font-size: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #clear-button {
-    width: 85px;
-    height: 40px;
-    border-radius: 10px;
+  width: 85px;
+  height: 45px;
+  background-color: orange;
 }
 
 #chat-input {
   resize: none;
+  width: 100%;
   overflow-y: hidden;
   min-height: 45px;
   max-height: 200px;
   padding: 0.75rem 1rem;
   font-size: 1rem;
-  border-radius: 10px;
+  border-radius: 25px;
   border: 2px solid white;
   outline: none;
   caret-color: green;
   line-height: 1.5;
   box-sizing: border-box;
-  background-color: yellow;
+  background-color: orange;
   transition: height 0.1s ease-out;
   flex: 1;
 }
 
 textarea::placeholder {
-    color: black;
-    opacity: 0.6;
-  }
+  color: black;
+  opacity: 0.6;
+}
+
+.input-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
