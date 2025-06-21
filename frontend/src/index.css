@@ -1,5 +1,4 @@
 body {
-    background-color: darkgreen;
     font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     overflow: hidden;
     height: 100vh;
@@ -8,4 +7,27 @@ body {
     display: flex;
     align-items: center;
     flex-direction: column;
+    background: linear-gradient(135deg,
+    #0a0f1f,   /* almost-black navy */
+    #1e2749,   /* indigo */
+    #2b3a42,   /* storm blue */
+    #3a1c40,   /* moody plum */
+    #1c2b2d    /* dark teal-gray */
+  );
+  background-size: 400% 400%;
+  /* animation: gradientShift 15s ease infinite; */
+  color: white;
 }
+
+/* Smooth gradient shift animation
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+} */

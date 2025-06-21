@@ -13,39 +13,59 @@
   padding: 0 1rem;
 }
 
-
-#mute-button, #send-button, #clear-button {
+/* Buttons base style */
+#mute-button, #clear-button, #send-button {
   font-size: 1.5rem;
-  border-color: white;
-  border-width: 3px;
-  color: darkblue;
-  cursor: pointer;
   border-radius: 25px;
+  cursor: pointer;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  color: white;
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: inset 0 2px 8px rgba(255, 255, 255, 0.3), 0 6px 12px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  font-weight: 200;
 }
 
-#mute-button {
+/* White glass style for mute/clear */
+#mute-button, #clear-button {
   width: 85px;
   height: 45px;
-  background-color: orange;
 }
 
+#mute-button:hover, #clear-button:hover, #send-button:hover {
+  animation: pulse-glow-white 3s ease-in-out infinite;
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 30px rgba(255, 255, 255, 0.5);
+}
+
+/* Send button style with clear glass look */
 #send-button {
   position: absolute;
-  right: 1%;
-  bottom: 12%;
-  width: 40px;
-  height: 40px;
-  font-size: 1rem;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: lightblue;
+  right: 1%;
+  bottom: 13%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.5rem;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
-#clear-button {
-  width: 85px;
-  height: 45px;
-  background-color: orange;
+/* pulse-glow-white keyframes */
+@keyframes pulse-glow-white {
+  0%, 100% {
+    background-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    background-color: rgba(255, 255, 255, 0.45);
+    box-shadow: 0 10px 30px rgba(255, 255, 255, 0.6);
+  }
 }
 
 #chat-input {
@@ -59,17 +79,43 @@
   border-radius: 25px;
   border: 2px solid white;
   outline: none;
-  caret-color: green;
+  caret-color: white;
   line-height: 1.5;
   box-sizing: border-box;
-  background-color: orange;
-  transition: height 0.1s ease-out;
+  transition: height 0.15s ease-out, border-color 0.3s ease;
   flex: 1;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(16px);
+  box-shadow: inset 0 2px 8px rgba(255, 255, 255, 0.3), 0 6px 12px rgba(0, 0, 0, 0.15);
+  color: white;
 }
 
-textarea::placeholder {
-  color: black;
+#chat-input::placeholder {
+  color: white;
+  font-weight: 500;
   opacity: 0.6;
+}
+
+/* Updated white-glow effect only on border */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 8px 2px rgba(255, 255, 255, 0.35),
+      inset 0 0 0 rgba(0, 0, 0, 0); /* no inner glow */
+  }
+  50% {
+    box-shadow:
+      0 0 14px 4px rgba(255, 255, 255, 0.75),
+      inset 0 0 0 rgba(0, 0, 0, 0);
+  }
+}
+
+#chat-input:focus {
+  border-color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.25);
+  color: #000;
+  animation: pulse-glow 4.5s ease-in-out infinite;
+  outline: none;
 }
 
 .input-wrapper {
