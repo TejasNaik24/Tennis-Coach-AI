@@ -13,14 +13,16 @@ function InputQuery() {
         }
     };
     return(
-        <div id="inputquery-container">
-        <button id="mute-button" title='Mute'>Mute</button>
-        <div className='input-wrapper'>
-        <textarea id="chat-input" ref={textareaRef} value={text} onChange={handleChange} rows={1} placeholder="Ask me anything..."/>
-        { text && <button id="send-button" title='Send'>↑</button> }
+    <div id="inputquery-container">
+        <button id="mute-button" title="Mute">Mute</button>
+
+        <div className="input-wrapper">
+            <textarea id="chat-input" ref={textareaRef} value={text} onChange={handleChange} rows={1} placeholder="Ask me anything..."/>
+            {text && (<button id="send-button" title="Send">↑</button>)}
         </div>
-        <button id="clear-button" title='Clear'>Clear</button>
-        </div>
+
+        <button id="clear-button" title="Clear">Clear</button>
+    </div>
     );
 }
 
