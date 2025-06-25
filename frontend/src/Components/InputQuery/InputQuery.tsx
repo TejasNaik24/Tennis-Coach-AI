@@ -1,17 +1,27 @@
 import "./InputQuery.css";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 function InputQuery() {
   const [text, setText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setText(e.target.value);
+  const adjustHeight = () => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
   };
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setText(e.target.value);
+    adjustHeight();
+  };
+
+  // Run once on mount to prevent "jump"
+  useEffect(() => {
+    adjustHeight();
+  }, []);
+
   return (
     <div id="inputquery-container">
       <button id="mute-button" title="Mute">
