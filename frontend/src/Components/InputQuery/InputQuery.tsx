@@ -22,6 +22,13 @@ function InputQuery() {
     adjustHeight();
   }, []);
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
   function sendMessage() {
     const message = text.trim();
     if (!message) return;
@@ -54,6 +61,7 @@ function InputQuery() {
           ref={textareaRef}
           value={text}
           onChange={handleChange}
+          onKeyDown={handleKeyDown}
           rows={1}
           placeholder="Ask me anything..."
         />
