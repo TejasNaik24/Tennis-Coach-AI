@@ -1,10 +1,22 @@
 import "./ChatBox.css";
 
-function ChatBox() {
+type Message = {
+  type: "user" | "ai";
+  text: string;
+};
+
+interface ChatBoxProps {
+  messages: Message[];
+}
+
+function ChatBox({ messages }: ChatBoxProps) {
   return (
     <div id="chat-box">
-      <div className="message user">Hi!</div>
-      <div className="message computer">Hello there! How can I help?</div>
+      {messages.map((msg, index) => (
+        <div key={index} className={`message ${msg.type}`}>
+          {msg.text}
+        </div>
+      ))}
     </div>
   );
 }
