@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, session
 from flask_cors import CORS
 from huggingface_hub import InferenceClient
 import os
+import re
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -28,9 +29,6 @@ def ask():
     user_message = data.get("message", "")
 
     identity_messages = {
-        "who are you": "I am your advanced tennis AI coach.",
-        "what can you do": "I can help with tennis rules, training tips, and match strategies.",
-        "hello": "Hey there! Ready to ace your next match?",
         "who are you": "I am an advanced artificial intelligence tennis coach, trained on a wide range of tennis matches, strategies, and techniques, with expert-level knowledge of the game.",
         "what can you do": "I can analyze your tennis performance, suggest techniques to improve specific shots like your serve or backhand, create personalized training drills, explain rules and strategies, and answer any tennis-related questions you have — from beginner basics to advanced match tactics.",
         "hello": "Hey there! Ready to ace your next match or sharpen your skills with some focused training drills? Let's level up your tennis game!",
@@ -38,7 +36,8 @@ def ask():
     }
 
     for key, response_text in identity_messages.items():
-        if key in user_message:
+        pattern = r'\b' + re.escape(key) + r'\b'
+        if re.search(pattern, user_message):
             return jsonify({"reply": response_text})
 
     # Get chat history from session

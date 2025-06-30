@@ -47,6 +47,10 @@ function InputQuery() {
     addMessage("user", message);
     setText("");
 
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto"; // reset height to default
+    }
+
     fetch("http://127.0.0.1:5000/ask", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -93,7 +97,6 @@ function InputQuery() {
             </button>
           )}
         </div>
-
         <button id="clear-button" title="Clear" onClick={() => setMessages([])}>
           Clear
         </button>
