@@ -8,6 +8,7 @@ function InputQuery() {
   const [messages, setMessages] = useState<
     { type: "user" | "ai"; text: string }[]
   >([]);
+  const [isMuted, setIsMuted] = useState(false);
 
   const adjustHeight = () => {
     if (textareaRef.current) {
@@ -15,6 +16,16 @@ function InputQuery() {
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
   };
+
+  function toggleMute() {
+    setIsMuted((prev) => {
+      const newMuted = !prev;
+      if (newMuted) {
+        window.speechSynthesis.cancel(); // Stop ongoing speech if muting
+      }
+      return newMuted;
+    });
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
@@ -71,14 +82,24 @@ function InputQuery() {
 
   function addMessage(type: "user" | "ai", text: string) {
     setMessages((prev) => [...prev, { type, text }]);
+
+    if (type === "ai" && !isMuted) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-US";
+      window.speechSynthesis.speak(utterance);
+    }
   }
 
   return (
     <>
       <ChatBox messages={messages} />
       <div id="inputquery-container">
-        <button id="mute-button" title="Mute">
-          Mute
+        <button
+          id="mute-button"
+          className={isMuted ? "unmuted" : "muted"}
+          onClick={toggleMute}
+        >
+          {isMuted ? "Unmute" : "Mute"}
         </button>
 
         <div className="input-wrapper">

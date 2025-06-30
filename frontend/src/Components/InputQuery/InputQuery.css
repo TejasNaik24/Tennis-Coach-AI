@@ -40,8 +40,21 @@
 /* White glass style for mute/clear */
 #mute-button,
 #clear-button {
-  width: 85px;
+  width: 80px;
   height: 45px;
+}
+
+#mute-button {
+  transition: width 0.3s ease, padding 0.3s ease;
+  text-align: center;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+#mute-button.unmuted {
+  width: 104px;
+  padding: 1 1rem;
 }
 
 #mute-button:hover,
