@@ -69,7 +69,6 @@ function InputQuery() {
     })
       .then((response: Response) => response.json())
       .then((data: { reply: string }) => {
-        console.log("Response:", data.reply);
         addMessage("ai", data.reply);
         // update UI here
       })
