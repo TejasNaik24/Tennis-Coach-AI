@@ -93,6 +93,9 @@ function InputQuery() {
     <>
       <ChatBox messages={messages} />
       <div id="inputquery-container">
+        <button id="clear-button" title="Clear" onClick={() => setMessages([])}>
+          Clear
+        </button>
         <button
           id="mute-button"
           className={isMuted ? "unmuted" : "muted"}
@@ -111,14 +114,46 @@ function InputQuery() {
             rows={1}
             placeholder="Ask me anything..."
           />
+          {!text && (
+            <button id="voice-mode" aria-label="Dictate" title="Use voice mode">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="6" y1="8" x2="6" y2="16" />
+                <line x1="12" y1="4" x2="12" y2="20" />
+                <line x1="18" y1="8" x2="18" y2="16" />
+              </svg>
+            </button>
+          )}
           {text && (
             <button id="send-button" title="Send" onClick={sendMessage}>
               ↑
             </button>
           )}
         </div>
-        <button id="clear-button" title="Clear" onClick={() => setMessages([])}>
-          Clear
+        <button id="dictate" title="Dictate">
+          <svg
+            width="24"
+            height="30"
+            viewBox="0 -3 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <rect x="9" y="2" width="6" height="12" rx="3" />
+            <path d="M5 11v1a7 7 0 0 0 14 0v-1" />
+            <line x1="12" y1="20" x2="12" y2="22" />
+            <line x1="8" y1="22" x2="16" y2="22" />
+          </svg>
         </button>
       </div>
     </>

@@ -18,7 +18,9 @@
 /* Buttons base style */
 #mute-button,
 #clear-button,
-#send-button {
+#send-button,
+#voice-mode,
+#dictate {
   font-size: 1.5rem;
   border-radius: 25px;
   cursor: pointer;
@@ -59,14 +61,17 @@
 
 #mute-button:hover,
 #clear-button:hover,
-#send-button:hover {
+#send-button:hover,
+#voice-mode:hover,
+#dictate:hover {
   animation: pulse-glow-white 3s ease-in-out infinite;
   background: rgba(255, 255, 255, 0.3);
   box-shadow: 0 8px 30px rgba(255, 255, 255, 0.5);
 }
 
-/* Send button style with clear glass look */
-#send-button {
+/* Send button and voice mode style with clear glass look */
+#send-button,
+#voice-mode {
   position: absolute;
   display: flex;
   justify-content: center;
@@ -78,6 +83,13 @@
   font-size: 1.5rem;
   transition: background-color 0.3s ease, box-shadow 0.3s ease,
     border-color 0.3s ease;
+}
+
+#dictate {
+  position: relative;
+  width: 45px;
+  height: 45px;
+  bottom: 0.2rem;
 }
 
 /* pulse-glow-white keyframes */
@@ -154,4 +166,9 @@
 .tooltip:hover .tooltip-text {
   visibility: visible;
   opacity: 1;
+}
+
+/* for now not shown */
+#mute-button {
+  display: none;
 }
