@@ -1,8 +1,22 @@
 import "./InputQuery.css";
 import React, { useState, useRef, useEffect } from "react";
 import ChatBox from "../ChatBox/ChatBox";
+import SpeechRecognition, {
+  useSpeechRecognition,
+} from "react-speech-recognition";
 
-function InputQuery() {
+function InputQuery(): React.ReactElement {
+  const {
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition,
+  } = useSpeechRecognition();
+
+  if (!browserSupportsSpeechRecognition) {
+    return <p>Your browser does not support speech recognition.</p>;
+  }
+
   const [text, setText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [messages, setMessages] = useState<
@@ -10,7 +24,6 @@ function InputQuery() {
   >([]);
   const [isMutedMic, setIsMutedMic] = useState(false);
   const [voiceMode, setVoiceMode] = useState(false);
-  const [isMutedDictate, setisMutedDictate] = useState(true);
 
   const adjustHeight = () => {
     if (textareaRef.current) {
@@ -27,11 +40,16 @@ function InputQuery() {
   };
 
   const toggleMuteDictate = () => {
-    setisMutedDictate((prev) => {
-      const newMutedDictate = !prev;
-      return newMutedDictate;
-    });
+    if (listening) {
+      SpeechRecognition.stopListening();
+    } else {
+      SpeechRecognition.startListening({ continuous: true });
+    }
   };
+
+  useEffect(() => {
+    setText(transcript);
+  }, [transcript]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
@@ -72,6 +90,9 @@ function InputQuery() {
 
     addMessage("user", message);
     setText("");
+
+    SpeechRecognition.stopListening();
+    resetTranscript();
 
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto"; // reset height to default
@@ -126,7 +147,7 @@ function InputQuery() {
               onChange={handleChange}
               onKeyDown={handleKeyDown}
               rows={1}
-              placeholder="Ask me anything..."
+              placeholder={!listening ? "Ask me anything..." : "Listening..."}
             />
           )}
           {!text && !voiceMode && (
@@ -159,7 +180,7 @@ function InputQuery() {
         </div>
         {!voiceMode && (
           <button id="dictate" title="Dictate" onClick={toggleMuteDictate}>
-            {isMutedDictate ? (
+            {!listening ? (
               <svg
                 width="24"
                 height="30"
