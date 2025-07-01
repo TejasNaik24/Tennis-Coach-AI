@@ -20,7 +20,8 @@
 #clear-button,
 #send-button,
 #voice-mode,
-#dictate {
+#dictate,
+#exit {
   font-size: 1.5rem;
   border-radius: 25px;
   cursor: pointer;
@@ -40,30 +41,17 @@
 }
 
 /* White glass style for mute/clear */
-#mute-button,
 #clear-button {
   width: 80px;
   height: 45px;
-}
-
-#mute-button {
-  transition: width 0.3s ease, padding 0.3s ease;
-  text-align: center;
-  line-height: 1;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-#mute-button.unmuted {
-  width: 104px;
-  padding: 1 1rem;
 }
 
 #mute-button:hover,
 #clear-button:hover,
 #send-button:hover,
 #voice-mode:hover,
-#dictate:hover {
+#dictate:hover,
+#exit:hover {
   animation: pulse-glow-white 3s ease-in-out infinite;
   background: rgba(255, 255, 255, 0.3);
   box-shadow: 0 8px 30px rgba(255, 255, 255, 0.5);
@@ -90,6 +78,12 @@
   width: 45px;
   height: 45px;
   bottom: 0.2rem;
+}
+
+#mute-button,
+#exit {
+  width: 45px;
+  height: 45px;
 }
 
 /* pulse-glow-white keyframes */
@@ -168,7 +162,34 @@
   opacity: 1;
 }
 
-/* for now not shown */
-#mute-button {
-  display: none;
+/* This shifts it to the right */
+.shifted-clear {
+  transform: translateX(295px); /* adjust as needed */
+}
+
+.voice-mode-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  gap: 0.7rem;
+}
+
+.fade-section {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+  transform: translateY(10px);
+}
+
+.fade-section.show {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0);
+}
+
+.fade-section.hide {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
 }

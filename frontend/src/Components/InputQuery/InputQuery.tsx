@@ -8,7 +8,9 @@ function InputQuery() {
   const [messages, setMessages] = useState<
     { type: "user" | "ai"; text: string }[]
   >([]);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMutedMic, setIsMutedMic] = useState(false);
+  const [voiceMode, setVoiceMode] = useState(false);
+  const [isMutedDictate, setisMutedDictate] = useState(true);
 
   const adjustHeight = () => {
     if (textareaRef.current) {
@@ -17,19 +19,32 @@ function InputQuery() {
     }
   };
 
-  function toggleMute() {
-    setIsMuted((prev) => {
-      const newMuted = !prev;
-      if (newMuted) {
-        window.speechSynthesis.cancel(); // Stop ongoing speech if muting
-      }
-      return newMuted;
+  const toggleMuteMic = () => {
+    setIsMutedMic((prev) => {
+      const newMutedMic = !prev;
+      return newMutedMic;
     });
-  }
+  };
+
+  const toggleMuteDictate = () => {
+    setisMutedDictate((prev) => {
+      const newMutedDictate = !prev;
+      return newMutedDictate;
+    });
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
     adjustHeight();
+  };
+
+  const voiceModeOn = () => {
+    setVoiceMode(true);
+  };
+
+  const voiceModeOff = () => {
+    setVoiceMode(false);
+    window.speechSynthesis.cancel();
   };
 
   // Run once on mount to prevent "jump"
@@ -51,7 +66,7 @@ function InputQuery() {
     }
   };
 
-  function sendMessage() {
+  const sendMessage = () => {
     const message = text.trim();
     if (!message) return;
 
@@ -77,45 +92,49 @@ function InputQuery() {
         // show error UI
         addMessage("ai", "Sorry, something went wrong.");
       });
-  }
+  };
 
-  function addMessage(type: "user" | "ai", text: string) {
+  const addMessage = (type: "user" | "ai", text: string) => {
     setMessages((prev) => [...prev, { type, text }]);
 
-    if (type === "ai" && !isMuted) {
+    if (type === "ai" && voiceMode) {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "en-US";
       window.speechSynthesis.speak(utterance);
     }
-  }
+  };
 
   return (
     <>
       <ChatBox messages={messages} />
       <div id="inputquery-container">
-        <button id="clear-button" title="Clear" onClick={() => setMessages([])}>
-          Clear
-        </button>
         <button
-          id="mute-button"
-          className={isMuted ? "unmuted" : "muted"}
-          onClick={toggleMute}
+          id="clear-button"
+          title="Clear"
+          className={voiceMode ? "shifted-clear" : ""}
+          onClick={() => setMessages([])}
         >
-          {isMuted ? "Unmute" : "Mute"}
+          Clear
         </button>
 
         <div className="input-wrapper">
-          <textarea
-            id="chat-input"
-            ref={textareaRef}
-            value={text}
-            onChange={handleChange}
-            onKeyDown={handleKeyDown}
-            rows={1}
-            placeholder="Ask me anything..."
-          />
-          {!text && (
-            <button id="voice-mode" aria-label="Dictate" title="Use voice mode">
+          {!voiceMode && (
+            <textarea
+              id="chat-input"
+              ref={textareaRef}
+              value={text}
+              onChange={handleChange}
+              onKeyDown={handleKeyDown}
+              rows={1}
+              placeholder="Ask me anything..."
+            />
+          )}
+          {!text && !voiceMode && (
+            <button
+              id="voice-mode"
+              title="Use voice mode"
+              onClick={voiceModeOn}
+            >
               <svg
                 width="24"
                 height="24"
@@ -138,23 +157,101 @@ function InputQuery() {
             </button>
           )}
         </div>
-        <button id="dictate" title="Dictate">
-          <svg
-            width="24"
-            height="30"
-            viewBox="0 -3 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <rect x="9" y="2" width="6" height="12" rx="3" />
-            <path d="M5 11v1a7 7 0 0 0 14 0v-1" />
-            <line x1="12" y1="20" x2="12" y2="22" />
-            <line x1="8" y1="22" x2="16" y2="22" />
-          </svg>
-        </button>
+        {!voiceMode && (
+          <button id="dictate" title="Dictate" onClick={toggleMuteDictate}>
+            {isMutedDictate ? (
+              <svg
+                width="24"
+                height="30"
+                viewBox="0 -3 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="9" y="2" width="6" height="12" rx="3" />
+                <path d="M5 11v1a7 7 0 0 0 14 0v-1" />
+                <line x1="12" y1="20" x2="12" y2="22" />
+                <line x1="8" y1="22" x2="16" y2="22" />
+                <line
+                  x1="4"
+                  y1="4"
+                  x2="20"
+                  y2="20"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                />
+              </svg>
+            ) : (
+              <svg
+                width="24"
+                height="30"
+                viewBox="0 -3 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="9" y="2" width="6" height="12" rx="3" />
+                <path d="M5 11v1a7 7 0 0 0 14 0v-1" />
+                <line x1="12" y1="20" x2="12" y2="22" />
+                <line x1="8" y1="22" x2="16" y2="22" />
+              </svg>
+            )}
+          </button>
+        )}
+        {voiceMode && (
+          <div className="voice-mode-controls">
+            <button id="mute-button" onClick={toggleMuteMic}>
+              {isMutedMic ? (
+                <svg
+                  width="24"
+                  height="30"
+                  viewBox="0 -3 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="9" y="2" width="6" height="12" rx="3" />
+                  <path d="M5 11v1a7 7 0 0 0 14 0v-1" />
+                  <line x1="12" y1="20" x2="12" y2="22" />
+                  <line x1="8" y1="22" x2="16" y2="22" />
+                  <line
+                    x1="4"
+                    y1="4"
+                    x2="20"
+                    y2="20"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  width="24"
+                  height="30"
+                  viewBox="0 -3 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="9" y="2" width="6" height="12" rx="3" />
+                  <path d="M5 11v1a7 7 0 0 0 14 0v-1" />
+                  <line x1="12" y1="20" x2="12" y2="22" />
+                  <line x1="8" y1="22" x2="16" y2="22" />
+                </svg>
+              )}
+            </button>
+            <button id="exit" onClick={voiceModeOff}>
+              X
+            </button>
+          </div>
+        )}
       </div>
     </>
   );
