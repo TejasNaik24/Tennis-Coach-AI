@@ -12,11 +12,11 @@ Check out the website here!:
 
 ## 📚 Table of Contents
 
-- [✨ Features](#✨-features)
-- [🛠️ Tech Stack](#🛠️-tech-stack)
-- [📁 Project Structure](#📁-project-structure)
-- [🌐 Deployment Platform](#🌐-deployment-platform)
-- [🚀 Setup and Deployment](#🚀-setup-and-deployment)
+- [✨ Features](#-features)
+- [🛠️ Tech Stack](#-tech-stack)
+- [📁 Project Structure](#-project-structure)
+- [🌐 Deployment Platform](#-deployment-platform)
+- [🚀 Setup and Deployment](#-setup-and-deployment)
   - [Option 1: Production Deployment (Recommended)](#option-1-production-deployment-recommended)
     - [Frontend (Vercel)](#frontend-vercel)
     - [Backend (Render)](#backend-render)
@@ -26,7 +26,7 @@ Check out the website here!:
     - [Setup (without docker)](#setup-without-docker)
       - [Backend setup](#backend-setup)
       - [Frontend setup](#frontend-setup)
-- [🖼️ Images](#🖼️-images)
+- [🖼️ Images](#-images)
 
 ---
 
