@@ -52,21 +52,46 @@ function InputQuery(): React.ReactElement | null {
     }
   };
 
-  const toggleMuteMic = () => {
-    console.log("🦜  toggleMuteMic called. listening is:", listening);
+  // 1️⃣  Make the handler async (so you can use await)
+  const toggleMuteMic = async () => {
+    console.log("🦜  toggleMuteMic clicked. listening:", listening);
+
     if (listening) {
+      // We were already listening → turn it off
       SpeechRecognition.stopListening();
-    } else {
-      SpeechRecognition.startListening({ continuous: true });
+      return;
+    }
+
+    // 2️⃣  We want to start listening → wrap it in try/catch
+    try {
+      await SpeechRecognition.startListening({ continuous: true });
+      console.log("mic started OK ✅");
+    } catch (err) {
+      console.error("SpeechRecognition error ❌:", err);
     }
   };
 
-  const toggleMuteDictate = () => {
+  const toggleMuteDictate = async () => {
     if (listening) {
       SpeechRecognition.stopListening();
     } else {
       resetTranscript();
-      SpeechRecognition.startListening({ continuous: true });
+      try {
+        await SpeechRecognition.startListening({ continuous: true });
+        console.log("dictate started OK");
+      } catch (err) {
+        console.error("Dictate error:", err);
+      }
+    }
+  };
+
+  const voiceModeOn = async () => {
+    setVoiceMode(true);
+    try {
+      await SpeechRecognition.startListening({ continuous: true });
+      console.log("voice mode listening");
+    } catch (err) {
+      console.error("Voice‑mode start error:", err);
     }
   };
 
@@ -85,11 +110,6 @@ function InputQuery(): React.ReactElement | null {
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
     adjustHeight();
-  };
-
-  const voiceModeOn = () => {
-    setVoiceMode(true);
-    SpeechRecognition.startListening({ continuous: true });
   };
 
   const voiceModeOff = () => {
