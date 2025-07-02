@@ -21,6 +21,22 @@ function InputQuery(): React.ReactElement | null {
 
   if (!browserSupportsSpeechRecognition) return null;
 
+  useEffect(() => {
+    if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+      navigator.mediaDevices
+        .enumerateDevices()
+        .then((devices) => {
+          const hasMic = devices.some((device) => device.kind === "audioinput");
+          if (!hasMic) {
+            alert("No microphone detected!");
+          }
+        })
+        .catch((error) => {
+          console.error("Error checking devices:", error);
+        });
+    }
+  }, []);
+
   const [text, setText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [messages, setMessages] = useState<
@@ -82,7 +98,6 @@ function InputQuery(): React.ReactElement | null {
     setVoiceMode(false);
     window.speechSynthesis.cancel();
     SpeechRecognition.stopListening();
-    adjustHeight();
   };
 
   // Run once on mount to prevent "jump"
