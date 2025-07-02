@@ -43,12 +43,14 @@ function InputQuery(): React.ReactElement {
     if (listening) {
       SpeechRecognition.stopListening();
     } else {
+      resetTranscript();
       SpeechRecognition.startListening({ continuous: true });
     }
   };
 
   useEffect(() => {
     setText(transcript);
+    adjustHeight();
   }, [transcript]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -148,6 +150,7 @@ function InputQuery(): React.ReactElement {
               onKeyDown={handleKeyDown}
               rows={1}
               placeholder={!listening ? "Ask me anything..." : "Listening..."}
+              disabled={listening}
             />
           )}
           {!text && !voiceMode && (
