@@ -99,6 +99,12 @@ function InputQuery(): React.ReactElement | null {
     }
   };
 
+  useEffect(() => {
+    if (!voiceMode) {
+      adjustHeight();
+    }
+  }, [voiceMode]);
+
   const voiceModeOff = () => {
     setVoiceMode(false);
     window.speechSynthesis.cancel();
