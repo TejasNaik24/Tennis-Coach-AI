@@ -13,37 +13,13 @@ function InputQuery(): React.ReactElement | null {
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
 
-  // State to track microphone permission
-  const [microphonePermission, setMicrophonePermission] = useState<
-    boolean | null
-  >(null);
-
-  // Request microphone permission
-  const requestMicrophonePermission = async () => {
-    try {
-      await navigator.mediaDevices.getUserMedia({ audio: true });
-      console.log("Microphone access granted.");
-      setMicrophonePermission(true);
-    } catch (err) {
-      console.error("Microphone access denied:", err);
-      setMicrophonePermission(false);
-    }
-  };
-
-  useEffect(() => {
-    if (microphonePermission === null) {
-      requestMicrophonePermission(); // Request permission when the component mounts
-    }
-  }, [microphonePermission]);
-
   useEffect(() => {
     if (!browserSupportsSpeechRecognition) {
       alert("Your browser does not support speech recognition.");
     }
   }, [browserSupportsSpeechRecognition]);
 
-  if (!browserSupportsSpeechRecognition || microphonePermission === null)
-    return null; // Do not render UI until permission is granted
+  if (!browserSupportsSpeechRecognition) return null;
 
   const [text, setText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
