@@ -161,10 +161,6 @@
   opacity: 1;
 }
 
-.shifted-clear {
-  transform: translateX(295px);
-}
-
 .voice-mode-controls {
   display: flex;
   justify-content: center;
@@ -189,4 +185,37 @@
 
 .scroll-class:hover::-webkit-scrollbar-thumb {
   background-color: rgba(255, 255, 255, 0.4); /* Brighter on hover */
+}
+
+@media (max-width: 600px) {
+  #chat-input {
+    font-size: 0.9rem;
+    padding: 0.6rem 0.8rem;
+  }
+
+  #clear-button {
+    width: 55px;
+    height: 38px;
+    font-size: 0.85rem;
+  }
+
+  #send-button,
+  #voice-mode,
+  #dictate,
+  #mute-button,
+  #exit {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+
+  #send-button,
+  #voice-mode {
+    transform: translateX(-4px);
+  }
+
+  #inputquery-container {
+    flex-wrap: wrap;
+    gap: 0.3rem;
+  }
 }

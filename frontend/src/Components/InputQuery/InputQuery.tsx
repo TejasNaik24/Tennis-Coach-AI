@@ -181,14 +181,11 @@ function InputQuery(): React.ReactElement | null {
     <>
       <ChatBox messages={messages} />
       <div id="inputquery-container">
-        <button
-          id="clear-button"
-          title="Clear"
-          className={voiceMode ? "shifted-clear" : ""}
-          onClick={clearMessages}
-        >
-          Clear
-        </button>
+        {!voiceMode && (
+          <button id="clear-button" title="Clear" onClick={clearMessages}>
+            Clear
+          </button>
+        )}
         <div className="input-wrapper">
           {!voiceMode && (
             <textarea
@@ -322,6 +319,16 @@ function InputQuery(): React.ReactElement | null {
                 </svg>
               )}
             </button>
+            {voiceMode && (
+              <button
+                id="clear-button"
+                title="Clear"
+                onClick={clearMessages}
+                className="voice-mode-controls"
+              >
+                Clear
+              </button>
+            )}
             <button id="exit" onClick={voiceModeOff}>
               X
             </button>
