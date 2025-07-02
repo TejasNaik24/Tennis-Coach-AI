@@ -16,8 +16,8 @@ Check out the website here!:
 - [🛠️ Tech Stack](#-tech-stack)
 - [📁 Project Structure](#-project-structure)
 - [🌐 Deployment Platform](#-deployment-platform)
-- [🚀 Setup and Deployment](#-setup-deployment)
-- [🖼️ Images](#️-images)
+- [🚀 Setup and Deployment](#-setup-and-deployment)
+- [🖼️ Images](#-images)
 
 ---
 
