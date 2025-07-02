@@ -13,29 +13,37 @@ function InputQuery(): React.ReactElement | null {
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
 
+  // State to track microphone permission
+  const [microphonePermission, setMicrophonePermission] = useState<
+    boolean | null
+  >(null);
+
+  // Request microphone permission
+  const requestMicrophonePermission = async () => {
+    try {
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+      console.log("Microphone access granted.");
+      setMicrophonePermission(true);
+    } catch (err) {
+      console.error("Microphone access denied:", err);
+      setMicrophonePermission(false);
+    }
+  };
+
+  useEffect(() => {
+    if (microphonePermission === null) {
+      requestMicrophonePermission(); // Request permission when the component mounts
+    }
+  }, [microphonePermission]);
+
   useEffect(() => {
     if (!browserSupportsSpeechRecognition) {
       alert("Your browser does not support speech recognition.");
     }
   }, [browserSupportsSpeechRecognition]);
 
-  if (!browserSupportsSpeechRecognition) return null;
-
-  useEffect(() => {
-    if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
-      navigator.mediaDevices
-        .enumerateDevices()
-        .then((devices) => {
-          const hasMic = devices.some((device) => device.kind === "audioinput");
-          if (!hasMic) {
-            alert("No microphone detected!");
-          }
-        })
-        .catch((error) => {
-          console.error("Error checking devices:", error);
-        });
-    }
-  }, []);
+  if (!browserSupportsSpeechRecognition || microphonePermission === null)
+    return null; // Do not render UI until permission is granted
 
   const [text, setText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
