@@ -1,9 +1,6 @@
 # 🎾 Tennis-Coach-AI
 
-A global voice-enabled AI tennis coach. This project was built using React and TypeScript for the frontend, providing a modern voice-enabled interface, 
-and Python with Flask for backend logic. Instead of using cloud-based LLMs like OpenAI, the app uses the Hugging Face Inference API to interact with a 
-Mistral language model, requiring only an API key for secure access. The system supports both speech-to-text and text-to-speech, allowing users to ask 
-tennis-related questions out loud and hear spoken responses, simulating a natural conversation with a virtual tennis coach, or use dictate to send messages.
+A global voice-enabled AI tennis coach. This project was built using React and TypeScript for the frontend, leveraging Vite as the build tool for a fast and modern development experience, and Python with Flask for backend logic. Instead of using cloud-based LLMs like OpenAI, the app uses the Hugging Face Inference API to interact with a Mistral language model, requiring only an API key for secure access. The system supports both speech-to-text and text-to-speech, allowing users to ask tennis-related questions out loud and hear spoken responses, simulating a natural conversation with a virtual tennis coach, or use dictate to send messages. The entire application can also be containerized using Docker for streamlined deployment and development.
 
 Check out the website here!:
 
