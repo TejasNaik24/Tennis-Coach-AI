@@ -15,10 +15,7 @@ Check out the website here!:
 - [Features](#-features)
 - [Tech Stack](#-tech-stack)
 - [Project Structure](#-project-structure)
-- [🚀 Setup](#-setup)
-  - [📦 Production Deployment](#-production-deployment)
-    - [🐳 With Docker](#-development-with-docker)
-    - [🧪 Without Docker](#-development-without-docker)
+- [🚀 Setup and Deployment](#-setup-deployment)
 - [🖼️ Images](#️-images)
 
 ---
@@ -93,7 +90,7 @@ TENNIS-COACH-AI/
 ```
 
 
-## 🚀 Setup
+## 🚀 Setup and Deployment
 
 ### Option 1: Production Deployment (Recommended)
 
