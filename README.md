@@ -17,15 +17,6 @@ Check out the website here!:
 - [📁 Project Structure](#-project-structure)
 - [🌐 Deployment Platform](#-deployment-platform)
 - [🚀 Setup and Deployment](#-setup-and-deployment)
-  - [Option 1: Production Deployment (Recommended)](#option-1-production-deployment-recommended)
-    - [Frontend (Vercel)](#frontend-vercel)
-    - [Backend (Render)](#backend-render)
-  - [Option 2: Local Development](#option-2-local-development)
-    - [Prerequisites](#prerequisites)
-    - [Setup (with docker)](#setup-with-docker)
-    - [Setup (without docker)](#setup-without-docker)
-      - [Backend setup](#backend-setup)
-      - [Frontend setup](#frontend-setup)
 - [🖼️ Images](#-images)
 
 ---
