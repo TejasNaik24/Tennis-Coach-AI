@@ -82,6 +82,7 @@ function InputQuery(): React.ReactElement | null {
     setVoiceMode(false);
     window.speechSynthesis.cancel();
     SpeechRecognition.stopListening();
+    adjustHeight();
   };
 
   // Run once on mount to prevent "jump"
