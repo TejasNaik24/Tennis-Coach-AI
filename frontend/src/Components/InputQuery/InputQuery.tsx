@@ -91,6 +91,7 @@ function InputQuery(): React.ReactElement | null {
 
   const voiceModeOn = () => {
     setVoiceMode(true);
+    resetTranscript();
     try {
       SpeechRecognition.startListening({ continuous: true });
     } catch (err) {
