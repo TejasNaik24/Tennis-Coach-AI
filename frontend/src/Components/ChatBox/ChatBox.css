@@ -85,7 +85,7 @@
 
 @media (max-width: 750px) {
   #chat-box {
-    height: 550px; /* Or whatever value fits better on mobile */
+    height: 350px; /* Or whatever value fits better on mobile */
     font-size: 0.9rem; /* Optional: smaller text */
     padding: 0.6rem 0.8rem; /* Optional: tighter padding */
   }
