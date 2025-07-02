@@ -162,9 +162,8 @@
   opacity: 1;
 }
 
-/* This shifts it to the right */
 .shifted-clear {
-  transform: translateX(295px); /* adjust as needed */
+  transform: translateX(295px);
 }
 
 .voice-mode-controls {
@@ -173,23 +172,4 @@
   align-items: center;
   width: 100%;
   gap: 0.7rem;
-}
-
-.fade-section {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.5s ease;
-  transform: translateY(10px);
-}
-
-.fade-section.show {
-  opacity: 1;
-  pointer-events: all;
-  transform: translateY(0);
-}
-
-.fade-section.hide {
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(10px);
 }

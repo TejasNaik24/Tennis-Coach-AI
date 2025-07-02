@@ -22,7 +22,6 @@ function InputQuery(): React.ReactElement {
   const [messages, setMessages] = useState<
     { type: "user" | "ai"; text: string }[]
   >([]);
-  const [isMutedMic, setIsMutedMic] = useState(false);
   const [voiceMode, setVoiceMode] = useState(false);
 
   const adjustHeight = () => {
@@ -33,10 +32,11 @@ function InputQuery(): React.ReactElement {
   };
 
   const toggleMuteMic = () => {
-    setIsMutedMic((prev) => {
-      const newMutedMic = !prev;
-      return newMutedMic;
-    });
+    if (listening) {
+      SpeechRecognition.stopListening();
+    } else {
+      SpeechRecognition.startListening({ continuous: true });
+    }
   };
 
   const toggleMuteDictate = () => {
@@ -45,6 +45,13 @@ function InputQuery(): React.ReactElement {
     } else {
       resetTranscript();
       SpeechRecognition.startListening({ continuous: true });
+    }
+  };
+
+  const clearMessages = () => {
+    setMessages([]);
+    if (voiceMode) {
+      window.speechSynthesis.cancel();
     }
   };
 
@@ -60,11 +67,13 @@ function InputQuery(): React.ReactElement {
 
   const voiceModeOn = () => {
     setVoiceMode(true);
+    SpeechRecognition.startListening({ continuous: true });
   };
 
   const voiceModeOff = () => {
     setVoiceMode(false);
     window.speechSynthesis.cancel();
+    SpeechRecognition.stopListening();
   };
 
   // Run once on mount to prevent "jump"
@@ -85,6 +94,42 @@ function InputQuery(): React.ReactElement {
       sendMessage();
     }
   };
+
+  useEffect(() => {
+    if (voiceMode && transcript.trim()) {
+      // Wait a tiny bit to ensure transcript is done
+      const timeout = setTimeout(() => {
+        // Add user's spoken message to the chat
+        addMessage("user", transcript.trim());
+
+        // Clear the transcript and stop listening
+        resetTranscript();
+
+        // Send to backend
+        fetch("http://127.0.0.1:5000/ask", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: transcript.trim() }),
+        })
+          .then((response) => response.json())
+          .then((data: { reply: string }) => {
+            addMessage("ai", data.reply);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            addMessage("ai", "Sorry, something went wrong.");
+          });
+      }, 1000); // optional buffer
+
+      return () => clearTimeout(timeout);
+    }
+  }, [transcript]);
+
+  useEffect(() => {
+    if (transcript && window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+    }
+  }, [transcript]);
 
   const sendMessage = () => {
     const message = text.trim();
@@ -135,7 +180,7 @@ function InputQuery(): React.ReactElement {
           id="clear-button"
           title="Clear"
           className={voiceMode ? "shifted-clear" : ""}
-          onClick={() => setMessages([])}
+          onClick={clearMessages}
         >
           Clear
         </button>
@@ -175,7 +220,7 @@ function InputQuery(): React.ReactElement {
               </svg>
             </button>
           )}
-          {text && (
+          {text && !voiceMode && (
             <button id="send-button" title="Send" onClick={sendMessage}>
               ↑
             </button>
@@ -229,7 +274,7 @@ function InputQuery(): React.ReactElement {
         {voiceMode && (
           <div className="voice-mode-controls">
             <button id="mute-button" onClick={toggleMuteMic}>
-              {isMutedMic ? (
+              {!listening ? (
                 <svg
                   width="24"
                   height="30"
