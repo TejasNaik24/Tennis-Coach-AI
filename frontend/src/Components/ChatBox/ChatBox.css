@@ -64,3 +64,21 @@
 .glow-once {
   animation: single-glow 1.5s ease-in-out 1;
 }
+
+#chat-box::-webkit-scrollbar {
+  width: 6px;
+}
+
+#chat-box::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#chat-box::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2); /* Lighter when not hovered */
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+#chat-box:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.4); /* Brighter on hover */
+}
