@@ -257,4 +257,4 @@ By default, it will be available at:
 
 #### 🧑‍💻 Tennis-Coach-AI Personalized Response  
 
-![PersonalizedResponse](https://github.com/user-attachments/assets/e96c2d83-a612-4452-8854-c4f36b63dbc8)
+![PersonalizedResponse](https://github.com/user-attachments/assets/13b61778-1923-4502-af5d-b2960dcc6838)
