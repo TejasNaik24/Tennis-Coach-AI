@@ -5,7 +5,7 @@ import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
 
-function InputQuery(): React.ReactElement {
+function InputQuery(): React.ReactElement | null {
   const {
     transcript,
     listening,
@@ -13,9 +13,13 @@ function InputQuery(): React.ReactElement {
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
 
-  if (!browserSupportsSpeechRecognition) {
-    return <p>Your browser does not support speech recognition.</p>;
-  }
+  useEffect(() => {
+    if (!browserSupportsSpeechRecognition) {
+      alert("Your browser does not support speech recognition.");
+    }
+  }, [browserSupportsSpeechRecognition]);
+
+  if (!browserSupportsSpeechRecognition) return null;
 
   const [text, setText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
