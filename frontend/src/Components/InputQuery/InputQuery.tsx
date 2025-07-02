@@ -13,6 +13,19 @@ function InputQuery(): React.ReactElement | null {
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
 
+  interface SpeechRecognitionWindow extends Window {
+    SpeechRecognition?: typeof SpeechRecognition;
+    webkitSpeechRecognition?: typeof SpeechRecognition;
+  }
+
+  const speechWindow = window as SpeechRecognitionWindow;
+
+  console.log("supported? ", {
+    speechRec: typeof speechWindow.SpeechRecognition,
+    webkit: typeof speechWindow.webkitSpeechRecognition,
+    hookFlag: browserSupportsSpeechRecognition,
+  });
+
   useEffect(() => {
     if (!browserSupportsSpeechRecognition) {
       alert("Your browser does not support speech recognition.");
@@ -40,6 +53,7 @@ function InputQuery(): React.ReactElement | null {
   };
 
   const toggleMuteMic = () => {
+    console.log("🦜  toggleMuteMic called. listening is:", listening);
     if (listening) {
       SpeechRecognition.stopListening();
     } else {
