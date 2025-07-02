@@ -14,6 +14,11 @@ function InputQuery(): React.ReactElement | null {
   } = useSpeechRecognition();
 
   useEffect(() => {
+    console.log(
+      "browserSupportsSpeechRecognition:",
+      browserSupportsSpeechRecognition
+    );
+
     if (!browserSupportsSpeechRecognition) {
       alert("Your browser does not support speech recognition.");
     }
