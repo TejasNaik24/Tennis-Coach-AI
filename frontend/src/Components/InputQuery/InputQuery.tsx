@@ -80,8 +80,18 @@ function InputQuery(): React.ReactElement | null {
   };
 
   const voiceModeOn = () => {
+    console.log("Voice mode turned on");
     setVoiceMode(true);
-    SpeechRecognition.startListening({ continuous: true });
+    navigator.mediaDevices
+      .getUserMedia({ audio: true })
+      .then(() => {
+        console.log("Mic permission granted");
+        SpeechRecognition.startListening({ continuous: true });
+      })
+      .catch((err) => {
+        console.error("Mic permission denied", err);
+        alert("Microphone access is required for voice mode.");
+      });
   };
 
   const voiceModeOff = () => {
