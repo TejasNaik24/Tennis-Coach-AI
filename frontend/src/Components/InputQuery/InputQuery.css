@@ -190,7 +190,6 @@
 @media (max-width: 600px) {
   #chat-input {
     font-size: 0.9rem;
-    padding: 0.6rem 0.8rem;
   }
 
   #clear-button {
