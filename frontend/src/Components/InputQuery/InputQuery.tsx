@@ -114,7 +114,7 @@ function InputQuery(): React.ReactElement | null {
         resetTranscript();
 
         // Send to backend
-        fetch("http://127.0.0.1:5000/ask", {
+        fetch("http://127.0.0.1:8000/ask", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: transcript.trim() }),
@@ -150,7 +150,7 @@ function InputQuery(): React.ReactElement | null {
     SpeechRecognition.stopListening();
     resetTranscript();
 
-    fetch("http://127.0.0.1:5000/ask", {
+    fetch("http://127.0.0.1:8000/ask", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message }),
