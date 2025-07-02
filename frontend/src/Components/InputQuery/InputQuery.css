@@ -214,6 +214,14 @@
     transform: translateX(-4px);
   }
 
+  #clear-button {
+    margin-bottom: 0.25rem;
+  }
+
+  #dictate {
+    margin-bottom: 0.2rem;
+  }
+
   #inputquery-container {
     flex-wrap: wrap;
     gap: 0.3rem;

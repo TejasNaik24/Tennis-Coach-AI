@@ -82,3 +82,11 @@
 #chat-box:hover::-webkit-scrollbar-thumb {
   background-color: rgba(255, 255, 255, 0.4); /* Brighter on hover */
 }
+
+@media (max-width: 750px) {
+  #chat-box {
+    height: 100px; /* Or whatever value fits better on mobile */
+    font-size: 0.9rem; /* Optional: smaller text */
+    padding: 0.6rem 0.8rem; /* Optional: tighter padding */
+  }
+}
