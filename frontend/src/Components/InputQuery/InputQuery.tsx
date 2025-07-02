@@ -364,7 +364,7 @@ function InputQuery(): React.ReactElement | null {
                 Clear
               </button>
             )}
-            <button id="exit" onClick={voiceModeOff}>
+            <button id="exit" title="End" onClick={voiceModeOff}>
               X
             </button>
           </div>
