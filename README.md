@@ -13,7 +13,7 @@ Check out the website here!:
 ## 📚 Table of Contents
 
 - [✨ Features](#-features)
-- [🛠️ Tech Stack](#-tech-stack)
+- [🛠️ Tech Stack](#tech-stack)
 - [📁 Project Structure](#-project-structure)
 - [🌐 Deployment Platform](#-deployment-platform)
 - [🚀 Setup and Deployment](#-setup-and-deployment)
