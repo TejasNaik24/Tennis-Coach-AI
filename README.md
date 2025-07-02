@@ -12,7 +12,7 @@ Check out the website here!:
 
 ## 📚 Table of Contents
 
-- [Features](#features)
+- [Features](#-features)
 - [Tech Stack](#tech-stack)
 - [Setup](#setup)
 - [Frontend](#frontend)
