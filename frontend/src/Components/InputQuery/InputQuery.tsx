@@ -27,11 +27,15 @@ function InputQuery(): React.ReactElement | null {
     { type: "user" | "ai"; text: string }[]
   >([]);
   const [voiceMode, setVoiceMode] = useState(false);
+  const [isMaxed, setIsMaxed] = useState(false);
 
   const adjustHeight = () => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+
+      const maxHeight = 200; // match this to your CSS `max-height`
+      setIsMaxed(textareaRef.current.scrollHeight >= maxHeight);
     }
   };
 
@@ -141,13 +145,10 @@ function InputQuery(): React.ReactElement | null {
 
     addMessage("user", message);
     setText("");
+    adjustHeight();
 
     SpeechRecognition.stopListening();
     resetTranscript();
-
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto"; // reset height to default
-    }
 
     fetch("http://127.0.0.1:5000/ask", {
       method: "POST",
@@ -188,7 +189,6 @@ function InputQuery(): React.ReactElement | null {
         >
           Clear
         </button>
-
         <div className="input-wrapper">
           {!voiceMode && (
             <textarea
@@ -198,8 +198,10 @@ function InputQuery(): React.ReactElement | null {
               onChange={handleChange}
               onKeyDown={handleKeyDown}
               rows={1}
+              style={{ overflowY: isMaxed ? "auto" : "hidden" }}
               placeholder={!listening ? "Ask me anything..." : "Listening..."}
               disabled={listening}
+              className="scroll-class"
             />
           )}
           {!text && !voiceMode && (
