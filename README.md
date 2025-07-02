@@ -251,10 +251,10 @@ By default, it will be available at:
 
 ![MainHub](https://github.com/user-attachments/assets/2ae25336-61cf-40ff-9eed-67850d46bbcf)
 
-#### 🎾 Tennis-Coach Demo
+#### 🎾 Tennis-Coach-AI Demo
 
 ![Demo](https://github.com/user-attachments/assets/1f3cc045-84fb-4b3c-971b-bdaa110c4df6)
 
-#### 🧑‍💻 Tennis-Coach Personalized Response  
+#### 🧑‍💻 Tennis-Coach-AI Personalized Response  
 
 ![PersonalizedResponse](https://github.com/user-attachments/assets/e96c2d83-a612-4452-8854-c4f36b63dbc8)
