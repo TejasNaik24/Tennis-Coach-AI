@@ -74,19 +74,19 @@
 }
 
 #chat-box::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.2); /* Lighter when not hovered */
+  background-color: rgba(255, 255, 255, 0.2);
   border-radius: 4px;
   transition: background-color 0.3s ease;
 }
 
 #chat-box:hover::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.4); /* Brighter on hover */
+  background-color: rgba(255, 255, 255, 0.4);
 }
 
 @media (max-width: 750px) {
   #chat-box {
-    height: 448px; /* Or whatever value fits better on mobile */
-    font-size: 0.9rem; /* Optional: smaller text */
-    padding: 0.6rem 0.8rem; /* Optional: tighter padding */
+    height: 448px;
+    font-size: 0.9rem;
+    padding: 0.6rem 0.8rem;
   }
 }
