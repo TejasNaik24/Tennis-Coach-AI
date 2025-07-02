@@ -41,9 +41,17 @@ function InputQuery(): React.ReactElement | null {
 
   const toggleMuteMic = () => {
     if (listening) {
-      SpeechRecognition.stopListening();
+      try {
+        SpeechRecognition.stopListening();
+      } catch (err) {
+        console.error("Mic error:", err);
+      }
     } else {
-      SpeechRecognition.startListening({ continuous: true });
+      try {
+        SpeechRecognition.startListening({ continuous: true });
+      } catch (err) {
+        console.error("Mic error:", err);
+      }
     }
   };
 
@@ -83,13 +91,21 @@ function InputQuery(): React.ReactElement | null {
 
   const voiceModeOn = () => {
     setVoiceMode(true);
-    SpeechRecognition.startListening({ continuous: true });
+    try {
+      SpeechRecognition.startListening({ continuous: true });
+    } catch (err) {
+      console.error("Mic error:", err);
+    }
   };
 
   const voiceModeOff = () => {
     setVoiceMode(false);
     window.speechSynthesis.cancel();
-    SpeechRecognition.stopListening();
+    try {
+      SpeechRecognition.stopListening();
+    } catch (err) {
+      console.error("Mic error:", err);
+    }
   };
 
   // Run once on mount to prevent "jump"
@@ -155,7 +171,11 @@ function InputQuery(): React.ReactElement | null {
     setText("");
     adjustHeight();
 
-    SpeechRecognition.stopListening();
+    try {
+      SpeechRecognition.stopListening();
+    } catch (err) {
+      console.error("Mic error:", err);
+    }
     resetTranscript();
 
     fetch(`${import.meta.env.VITE_API_URL}/ask`, {
