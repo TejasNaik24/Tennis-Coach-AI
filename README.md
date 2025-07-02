@@ -12,9 +12,10 @@ Check out the website here!:
 
 ## 📚 Table of Contents
 
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Project Structure](#-project-structure)
+- [✨ Features](#-features)
+- [🛠️ Tech Stack](#-tech-stack)
+- [📁 Project Structure](#-project-structure)
+- [🌐 Deployment Platform](#-deployment-platform)
 - [🚀 Setup and Deployment](#-setup-deployment)
 - [🖼️ Images](#️-images)
 
@@ -88,6 +89,12 @@ TENNIS-COACH-AI/
 ├── docker-compose.yml
 └── README.md
 ```
+## 🌐 Deployment Platform
+
+| Platform | Link |
+|----------|------|
+| Vercel   | [https://tennis-coach-ai.vercel.app](https://tennis-coach-ai.vercel.app) |
+| Render   | [https://tennis-coach-ai.onrender.com](https://tennis-coach-ai.onrender.com) |
 
 
 ## 🚀 Setup and Deployment
