@@ -13,15 +13,13 @@ Check out the website here!:
 ## 📚 Table of Contents
 
 - [Features](#-features)
-- [Tech Stack](#tech-stack)
-- [Setup](#setup)
-- [Frontend](#frontend)
-- [Backend](#backend)
-- [Environment Variables](#environment-variables)
-- [Deployment](#deployment)
-- [Render (Backend)](#render-backend)
-- [Vercel (Frontend)](#vercel-frontend)
-- [Docker (Full Stack)](#docker-full-stack)
+- [Tech Stack](#-tech-stack)
+- [Project Structure](#-project-structure)
+- [🚀 Setup](#-setup)
+  - [📦 Production Deployment](#-production-deployment)
+    - [🐳 With Docker](#-development-with-docker)
+    - [🧪 Without Docker](#-development-without-docker)
+- [🖼️ Images](#️-images)
 
 ---
 
@@ -97,8 +95,174 @@ TENNIS-COACH-AI/
 
 ## 🚀 Setup
 
-Clone the repository:
+### Option 1: Production Deployment (Recommended)
+
+#### Frontend (Vercel)
+1. Fork this repository
+2. Connect to Vercel
+3. Set environment variable:
+   ```env
+   VITE_BACKEND_URL = https://your-backend-url.onrender.com
+   ```
+4. Deploy
+
+#### Backend (Render)
+1. Connect GitHub repository
+2. Configure environment variables:
+```env
+HF_TOKEN = your-hf-token
+```
+
+4. **Deploy**
+
+### Option 2: Local Development
+
+#### Prerequisites
+
+- [Node.js](https://nodejs.org/) v18 or higher
+- [Python](https://www.python.org/) v3.10 or higher
+- [Docker & Docker Compose](https://www.docker.com/) (recommended for deployment but optional)
+- [Hugging Face account](https://huggingface.co/join)
+
+### Setup (with docker)
+
+**make sure to have the docker application running.**
+
+1. **Clone Repository**
+```bash
+git clone https://github.com/TejasNaik24/Tennis-Coach-AI.git
+```
+
+2. **Create the .env file in the backend folder**
 
 ```bash
-git clone https://github.com/yourname/voicegpt.git
-cd voicegpt
+cd backend
+touch .env
+```
+3. **Add your environment variables**
+
+```bash
+HF_TOKEN = your-hf-token
+VITE_BACKEND_URL = your-localhost-server
+```
+> Note: the flask server will default bind to http://127.0.0.1:8000 you can change it in the last line of the main.py file
+
+```python
+app.run(host='0.0.0.0', port=8000, debug=True)
+```
+4. **Deploy**
+ 
+ To delopy exit out of backend folder
+```bash
+cd ..
+```
+Then simply build and start your containers:
+
+```bash
+docker-compose up --build
+```
+
+### Setup (without docker)
+
+1. **Clone Repository**
+```bash
+git clone https://github.com/TejasNaik24/Tennis-Coach-AI.git
+```
+
+#### Backend setup
+
+2. **Create the .env file in the backend folder**
+
+```bash
+cd backend
+touch .env
+```
+3. **Add your environment variables**
+
+```bash
+HF_TOKEN = your-hf-token
+VITE_BACKEND_URL = your-localhost-server
+```
+> Note: the flask server will default bind to http://127.0.0.1:8000 you can change it in the last line of the main.py file
+
+```python
+app.run(host='0.0.0.0', port=8000, debug=True)
+```
+4. **Create virtual environment and install dependencies**
+
+- **Linux/macOS:**
+  ```bash
+  python3 -m venv .venv
+  source .venv/bin/activate
+  ```
+  
+- **Windows(PowerShell):**
+  ```bash
+  python -m venv .venv
+  .\.venv\Scripts\Activate.ps1
+  ```
+  
+- **Windows(Command Prompt):**
+  ```bash
+  python -m venv .venv
+  .\.venv\Scripts\activate.bat
+  ```
+**Then install dependencies**
+
+- **Linux/macOS:**
+  ```bash
+  pip3 install -r requirements.txt
+  ```
+  
+- **Windows:**
+  ```bash
+  pip install -r requirements.txt
+  ```
+
+5. **Run the backend server**
+
+- **Linux/macOS:**
+  ```bash
+  python3 main.py
+  ```
+  
+- **Windows:**
+  ```bash
+  python main.py
+  ```
+
+#### Frontend setup
+
+1. **Install Node Dependencies**
+
+```bash
+cd frontend
+npm install
+```
+2. **Run the frontend server**
+
+```bash
+npm run dev
+```
+
+#### ✅ All Done!
+
+Your frontend Vite server should now be running!
+
+By default, it will be available at:
+
+👉 [http://localhost:5173](http://localhost:5173)
+
+## 🖼️ Images
+
+#### 🔧 Main Hub  
+
+![MainHub](https://github.com/user-attachments/assets/2ae25336-61cf-40ff-9eed-67850d46bbcf)
+
+#### 🎾 Tennis-Coach Demo
+
+![Demo](https://github.com/user-attachments/assets/1f3cc045-84fb-4b3c-971b-bdaa110c4df6)
+
+#### 🧑‍💻 Tennis-Coach Personalized Response  
+
+![PersonalizedResponse](https://github.com/user-attachments/assets/e96c2d83-a612-4452-8854-c4f36b63dbc8)
