@@ -105,6 +105,10 @@ function InputQuery(): React.ReactElement | null {
     }
   }, [voiceMode]);
 
+  useEffect(() => {
+    adjustHeight();
+  }, [text]);
+
   const voiceModeOff = () => {
     setVoiceMode(false);
     window.speechSynthesis.cancel();
@@ -176,7 +180,6 @@ function InputQuery(): React.ReactElement | null {
 
     addMessage("user", message);
     setText("");
-    adjustHeight();
 
     try {
       SpeechRecognition.stopListening();
