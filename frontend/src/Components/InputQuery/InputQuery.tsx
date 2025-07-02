@@ -114,7 +114,7 @@ function InputQuery(): React.ReactElement | null {
         resetTranscript();
 
         // Send to backend
-        fetch("https://tennis-coach-ai.onrender.com/ask", {
+        fetch(`${import.meta.env.VITE_API_URL}/ask`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: transcript.trim() }),
@@ -150,7 +150,7 @@ function InputQuery(): React.ReactElement | null {
     SpeechRecognition.stopListening();
     resetTranscript();
 
-    fetch("https://tennis-coach-ai.onrender.com/ask", {
+    fetch(`${import.meta.env.VITE_API_URL}/ask`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message }),
