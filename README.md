@@ -10,15 +10,6 @@ Check out the website here!:
  🔗 **[https://tennis-coach-ai.vercel.app](https://tennis-coach-ai.vercel.app)**
  > Note: With the free version of render being used, it will cause a delay when starting the backend 15 minutes after the app has not been in use. If you send a request and get an error, retry again and wait a little longer for the backend to start up, which can take up to 3 minutes.
 
-## 📚 Table of Contents
-
-- [✨ Features](#-features)
-- [🛠️ Tech Stack](#-tech-stacks)
-- [📁 Project Structure](#-project-structure)
-- [🌐 Deployment Platform](#-deployment-platform)
-- [🚀 Setup and Deployment](#-setup-and-deployment)
-- [🖼️ Images](#-images)
-
 ---
 
 ## ✨ Features
