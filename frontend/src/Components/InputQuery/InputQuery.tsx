@@ -14,17 +14,16 @@ function InputQuery(): React.ReactElement | null {
   } = useSpeechRecognition();
 
   useEffect(() => {
-    console.log(
-      "browserSupportsSpeechRecognition:",
-      browserSupportsSpeechRecognition
-    );
-
     if (!browserSupportsSpeechRecognition) {
       alert("Your browser does not support speech recognition.");
     }
   }, [browserSupportsSpeechRecognition]);
 
   if (!browserSupportsSpeechRecognition) return null;
+
+  useEffect(() => {
+    console.log("Transcript updated:", transcript);
+  }, [transcript]);
 
   const [text, setText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -45,6 +44,8 @@ function InputQuery(): React.ReactElement | null {
   };
 
   const toggleMuteMic = () => {
+    console.log("Toggling mic. Listening:", listening);
+
     if (listening) {
       SpeechRecognition.stopListening();
     } else {
@@ -173,6 +174,8 @@ function InputQuery(): React.ReactElement | null {
   };
 
   const addMessage = (type: "user" | "ai", text: string) => {
+    console.log("Adding message:", { type, text });
+
     setMessages((prev) => [...prev, { type, text }]);
 
     if (type === "ai" && voiceMode) {
