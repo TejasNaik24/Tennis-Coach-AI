@@ -49,7 +49,11 @@ function InputQuery(): React.ReactElement | null {
 
   const toggleMuteDictate = () => {
     if (listening) {
-      SpeechRecognition.stopListening();
+      try {
+        SpeechRecognition.stopListening();
+      } catch (err) {
+        console.error("Dictate error:", err);
+      }
     } else {
       resetTranscript();
       try {
