@@ -87,6 +87,10 @@ TENNIS-COACH-AI/
 
 ## 🚀 Setup and Deployment
 
+#### Prerequisites
+
+- [Hugging Face account](https://huggingface.co/join)
+
 ### Option 1: Production Deployment (Recommended)
 
 #### Frontend (Vercel)
@@ -100,7 +104,12 @@ TENNIS-COACH-AI/
 
 #### Backend (Render)
 1. Connect GitHub repository
-2. Configure environment variables:
+
+2. Create a Hugging Face API key:
+Go to [https://huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) and create a new read access token.
+Copy this key — you’ll need it to authenticate requests to the Mistral model.
+   
+3. Configure environment variables:
 ```env
 HF_TOKEN = your-hf-token
 ```
@@ -125,13 +134,17 @@ HF_TOKEN = your-hf-token
 git clone https://github.com/TejasNaik24/Tennis-Coach-AI.git
 ```
 
-2. **Create the .env file in the backend folder**
+2. Create a Hugging Face API key:
+Go to [https://huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) and create a new read access token.
+Copy this key — you’ll need it to authenticate requests to the Mistral model.
+
+3. **Create the .env file in the backend folder**
 
 ```bash
 cd backend
 touch .env
 ```
-3. **Add your environment variables**
+4. **Add your environment variables**
 
 ```bash
 HF_TOKEN = your-hf-token
@@ -142,7 +155,7 @@ VITE_BACKEND_URL = your-localhost-server
 ```python
 app.run(host='0.0.0.0', port=8000, debug=True)
 ```
-4. **Deploy**
+5. **Deploy**
  
  To delopy exit out of backend folder
 ```bash
@@ -163,13 +176,17 @@ git clone https://github.com/TejasNaik24/Tennis-Coach-AI.git
 
 #### Backend setup
 
-2. **Create the .env file in the backend folder**
+2. Create a Hugging Face API key:
+Go to [https://huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) and create a new read access token.
+Copy this key — you’ll need it to authenticate requests to the Mistral model.
+
+3. **Create the .env file in the backend folder**
 
 ```bash
 cd backend
 touch .env
 ```
-3. **Add your environment variables**
+4. **Add your environment variables**
 
 ```bash
 HF_TOKEN = your-hf-token
@@ -180,7 +197,7 @@ VITE_BACKEND_URL = your-localhost-server
 ```python
 app.run(host='0.0.0.0', port=8000, debug=True)
 ```
-4. **Create virtual environment and install dependencies**
+5. **Create virtual environment and install dependencies**
 
 - **Linux/macOS:**
   ```bash
@@ -211,7 +228,7 @@ app.run(host='0.0.0.0', port=8000, debug=True)
   pip install -r requirements.txt
   ```
 
-5. **Run the backend server**
+6. **Run the backend server**
 
 - **Linux/macOS:**
   ```bash
