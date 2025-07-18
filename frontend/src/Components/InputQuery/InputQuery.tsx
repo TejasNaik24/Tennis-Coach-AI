@@ -119,6 +119,7 @@ function InputQuery(): React.ReactElement | null {
     }
   };
 
+  // Run once on mount to prevent "jump"
   useEffect(() => {
     adjustHeight();
   }, []);
@@ -144,7 +145,7 @@ function InputQuery(): React.ReactElement | null {
         // Add user's spoken message to the chat
         addMessage("user", transcript.trim());
 
-        // Clear the transcript
+        // Clear the transcript and stop listening
         resetTranscript();
 
         // Send to backend
@@ -161,7 +162,7 @@ function InputQuery(): React.ReactElement | null {
             console.error("Error:", error);
             addMessage("ai", "Sorry, something went wrong.");
           });
-      }, 1000);
+      }, 1000); // optional buffer
 
       return () => clearTimeout(timeout);
     }
@@ -210,11 +211,7 @@ function InputQuery(): React.ReactElement | null {
     if (type === "ai" && voiceMode) {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "en-US";
-      try {
-        window.speechSynthesis.speak(utterance);
-      } catch (err) {
-        console.error("Speaking error:", err);
-      }
+      window.speechSynthesis.speak(utterance);
     }
   };
 
