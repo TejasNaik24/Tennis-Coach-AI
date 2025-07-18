@@ -144,14 +144,8 @@ function InputQuery(): React.ReactElement | null {
         // Add user's spoken message to the chat
         addMessage("user", transcript.trim());
 
-        // Clear the transcript and stop listening
+        // Clear the transcript
         resetTranscript();
-
-        try {
-          SpeechRecognition.stopListening();
-        } catch (err) {
-          console.error("Mic stop error:", err);
-        }
 
         // Send to backend
         fetch(`${import.meta.env.VITE_API_URL}/ask`, {
