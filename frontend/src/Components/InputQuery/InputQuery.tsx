@@ -147,6 +147,12 @@ function InputQuery(): React.ReactElement | null {
         // Clear the transcript and stop listening
         resetTranscript();
 
+        try {
+          SpeechRecognition.stopListening();
+        } catch (err) {
+          console.error("Mic stop error:", err);
+        }
+
         // Send to backend
         fetch(`${import.meta.env.VITE_API_URL}/ask`, {
           method: "POST",
@@ -161,7 +167,7 @@ function InputQuery(): React.ReactElement | null {
             console.error("Error:", error);
             addMessage("ai", "Sorry, something went wrong.");
           });
-      }, 1000); // optional buffer
+      }, 1000);
 
       return () => clearTimeout(timeout);
     }
