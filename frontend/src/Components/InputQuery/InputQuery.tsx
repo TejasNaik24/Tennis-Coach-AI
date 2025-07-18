@@ -119,7 +119,6 @@ function InputQuery(): React.ReactElement | null {
     }
   };
 
-  // Run once on mount to prevent "jump"
   useEffect(() => {
     adjustHeight();
   }, []);
@@ -211,7 +210,11 @@ function InputQuery(): React.ReactElement | null {
     if (type === "ai" && voiceMode) {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "en-US";
-      window.speechSynthesis.speak(utterance);
+      try {
+        window.speechSynthesis.speak(utterance);
+      } catch (err) {
+        console.error("Speaking error:", err);
+      }
     }
   };
 
