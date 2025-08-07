@@ -169,6 +169,8 @@ docker-compose up --build
 
 ### Setup (without docker)
 
+**You will need to create two separate .env files**
+
 1. **Clone Repository**
 ```bash
 git clone https://github.com/TejasNaik24/Tennis-Coach-AI.git
@@ -186,17 +188,12 @@ Copy this key — you’ll need it to authenticate requests to the Mistral model
 cd backend
 touch .env
 ```
-4. **Add your environment variables**
+4. **Add your environment variable**
 
 ```bash
 HF_TOKEN = your-hf-token
-VITE_API_URL = your-localhost-server
 ```
-> Note: the flask server will default bind to http://127.0.0.1:8000 you can change it in the last line of the main.py file
 
-```python
-app.run(host='0.0.0.0', port=8000, debug=True)
-```
 5. **Create virtual environment and install dependencies**
 
 - **Linux/macOS:**
@@ -242,13 +239,31 @@ app.run(host='0.0.0.0', port=8000, debug=True)
 
 #### Frontend setup
 
-1. **Install Node Dependencies**
+**Open a new terminal**
+
+1. **Create the .env file in the frontend folder**
 
 ```bash
 cd frontend
+touch .env
+```
+2. **Add your environment variable**
+
+```bash
+VITE_API_URL = your-localhost-server
+```
+> Note: the flask server will default bind to http://127.0.0.1:8000 you can change it in the last line of the main.py file
+
+```python
+app.run(host='0.0.0.0', port=8000, debug=True)
+```
+
+3. **Install Node Dependencies**
+
+```bash
 npm install
 ```
-2. **Run the frontend server**
+4. **Run the frontend server**
 
 ```bash
 npm run dev
