@@ -212,8 +212,17 @@ function InputQuery(): React.ReactElement | null {
     if (type === "ai" && voiceMode) {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "en-US";
-      SpeechRecognition.stopListening();
 
+      // 🔇 Mute mic when TTS starts
+      utterance.onstart = () => {
+        try {
+          SpeechRecognition.stopListening();
+        } catch (err) {
+          console.error("Mic error on TTS start:", err);
+        }
+      };
+
+      // 🔊 Unmute mic after TTS ends
       utterance.onend = () => {
         try {
           SpeechRecognition.startListening({ continuous: true });
