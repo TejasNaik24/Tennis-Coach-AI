@@ -270,7 +270,7 @@ By default, it will be available at:
 
 #### 🎾 Tennis-Coach-AI Demo
 
-![Demo](https://github.com/user-attachments/assets/1f3cc045-84fb-4b3c-971b-bdaa110c4df6)
+![Demo](https://github.com/user-attachments/assets/15f140eb-e1aa-44f8-ac07-5910bd670de3)
 
 #### 🧑‍💻 Tennis-Coach-AI Personalized Response  
 
