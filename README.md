@@ -98,7 +98,7 @@ TENNIS-COACH-AI/
 2. Connect to Vercel
 3. Set environment variable:
    ```env
-   VITE_BACKEND_URL = https://your-backend-url.onrender.com
+   VITE_API_URL = https://your-backend-url.onrender.com
    ```
 4. Deploy
 
@@ -148,7 +148,7 @@ touch .env
 
 ```bash
 HF_TOKEN = your-hf-token
-VITE_BACKEND_URL = your-localhost-server
+VITE_API_URL = your-localhost-server
 ```
 > Note: the flask server will default bind to http://127.0.0.1:8000 you can change it in the last line of the main.py file
 
@@ -190,7 +190,7 @@ touch .env
 
 ```bash
 HF_TOKEN = your-hf-token
-VITE_BACKEND_URL = your-localhost-server
+VITE_API_URL = your-localhost-server
 ```
 > Note: the flask server will default bind to http://127.0.0.1:8000 you can change it in the last line of the main.py file
 
