@@ -211,6 +211,23 @@ function InputQuery(): React.ReactElement | null {
     if (type === "ai" && voiceMode) {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "en-US";
+
+      utterance.onstart = () => {
+        try {
+          SpeechRecognition.stopListening();
+        } catch (err) {
+          console.error("Mic error on TTS start:", err);
+        }
+      };
+
+      utterance.onend = () => {
+        try {
+          SpeechRecognition.startListening({ continuous: true });
+        } catch (err) {
+          console.error("Mic error on TTS end:", err);
+        }
+      };
+
       window.speechSynthesis.speak(utterance);
     }
   };
