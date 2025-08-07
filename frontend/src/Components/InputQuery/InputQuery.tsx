@@ -47,6 +47,7 @@ function InputQuery(): React.ReactElement | null {
         console.error("Mic error:", err);
       }
     } else {
+      window.speechSynthesis.cancel();
       try {
         SpeechRecognition.startListening({ continuous: true });
       } catch (err) {
@@ -211,14 +212,7 @@ function InputQuery(): React.ReactElement | null {
     if (type === "ai" && voiceMode) {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "en-US";
-
-      utterance.onstart = () => {
-        try {
-          SpeechRecognition.stopListening();
-        } catch (err) {
-          console.error("Mic error on TTS start:", err);
-        }
-      };
+      SpeechRecognition.stopListening();
 
       utterance.onend = () => {
         try {
