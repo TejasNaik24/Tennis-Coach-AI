@@ -44,7 +44,7 @@ def ask():
 
     try:
         completion = client.chat.completions.create(
-            model="mistralai/Magistral-Small-2506",
+            model="mistralai/Mistral-7B-Instruct-v0.3",
             messages=messages
         )
         ai_response = completion.choices[0].message.content
