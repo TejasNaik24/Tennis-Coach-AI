@@ -1,16 +1,20 @@
+import sys
+import os
+import re
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from huggingface_hub import InferenceClient
-import os
-import re
 from dotenv import load_dotenv
 
 load_dotenv()
 
 HF_TOKEN = os.getenv("HF_TOKEN")
-client = InferenceClient(token=HF_TOKEN)
+if HF_TOKEN:
+    print(f"HF_TOKEN loaded (length: {len(HF_TOKEN)})", file=sys.stderr)
+else:
+    print("WARNING: HF_TOKEN is NOT set!", file=sys.stderr)
 
-assert HF_TOKEN is not None, "HF_TOKEN is missing. Check your .env file!"
+client = InferenceClient(token=HF_TOKEN)
 
 app = Flask(__name__)
 CORS(app)
@@ -51,8 +55,8 @@ def ask():
         return jsonify({"reply": ai_response})
 
     except Exception as e:
-        print("Error from LLM:", str(e))
-        return jsonify({"reply": "Sorry, something went wrong while processing your request."})
+        print(f"Error from LLM: {str(e)}", file=sys.stderr)
+        return jsonify({"reply": f"Error: {str(e)}"}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, debug=True)
