@@ -8,9 +8,10 @@ type Message = {
 
 interface ChatBoxProps {
   messages: Message[];
+  isThinking?: boolean;
 }
 
-function ChatBox({ messages }: ChatBoxProps) {
+function ChatBox({ messages, isThinking }: ChatBoxProps) {
   const [glow, setGlow] = useState(false);
   const prevLength = useRef(messages.length);
 
@@ -35,6 +36,7 @@ function ChatBox({ messages }: ChatBoxProps) {
           {msg.text}
         </div>
       ))}
+      {isThinking && <div className="message ai thinking">Thinking</div>}
     </div>
   );
 }

@@ -28,6 +28,7 @@ function InputQuery(): React.ReactElement | null {
   >([]);
   const [voiceMode, setVoiceMode] = useState(false);
   const [isMaxed, setIsMaxed] = useState(false);
+  const [isThinking, setIsThinking] = useState(false);
 
   const adjustHeight = () => {
     if (textareaRef.current) {
@@ -150,6 +151,7 @@ function InputQuery(): React.ReactElement | null {
         resetTranscript();
 
         // Send to backend
+        setIsThinking(true);
         fetch(`${import.meta.env.VITE_API_URL}/ask`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -157,10 +159,12 @@ function InputQuery(): React.ReactElement | null {
         })
           .then((response) => response.json())
           .then((data: { reply: string }) => {
+            setIsThinking(false);
             addMessage("ai", data.reply);
           })
           .catch((error) => {
             console.error("Error:", error);
+            setIsThinking(false);
             addMessage("ai", "Sorry, something went wrong.");
           });
       }, 1000); // optional buffer
@@ -189,6 +193,7 @@ function InputQuery(): React.ReactElement | null {
     }
     resetTranscript();
 
+    setIsThinking(true);
     fetch(`${import.meta.env.VITE_API_URL}/ask`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -196,12 +201,14 @@ function InputQuery(): React.ReactElement | null {
     })
       .then((response: Response) => response.json())
       .then((data: { reply: string }) => {
+        setIsThinking(false);
         addMessage("ai", data.reply);
         // update UI here
       })
       .catch((error: any) => {
         console.error("Error:", error);
         // show error UI
+        setIsThinking(false);
         addMessage("ai", "Sorry, something went wrong.");
       });
   };
@@ -236,7 +243,7 @@ function InputQuery(): React.ReactElement | null {
 
   return (
     <>
-      <ChatBox messages={messages} />
+      <ChatBox messages={messages} isThinking={isThinking} />
       <div id="inputquery-container">
         {!voiceMode && (
           <button id="clear-button" title="Clear" onClick={clearMessages}>

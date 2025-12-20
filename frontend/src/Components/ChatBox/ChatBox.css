@@ -3,9 +3,11 @@
   overflow-y: auto;
   width: 90%;
   max-width: 750px;
-  margin: 0 auto 10px auto; /* space above input */
+  margin: 0 auto 10px auto;
+  /* space above input */
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.07); /* glassy background */
+  background: rgba(255, 255, 255, 0.07);
+  /* glassy background */
   border-radius: 1rem;
   box-shadow: 0 0 25px rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(5.5px);
@@ -34,27 +36,57 @@
 /* User message */
 .message.user {
   align-self: flex-end;
-  background: rgba(255, 255, 255, 0.12); /* glassier */
+  background: rgba(255, 255, 255, 0.12);
+  /* glassier */
   backdrop-filter: blur(18px);
   border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
 }
 
 /* AI/computer message */
-.message.computer {
+.message.computer,
+.message.ai {
   align-self: flex-start;
-  background: rgba(255, 255, 255, 0.06); /* slightly darker */
+  background: rgba(255, 255, 255, 0.06);
+  /* slightly darker */
   border: 1px solid rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
   color: white;
 }
 
+/* Thinking animation */
+.message.thinking {
+  font-style: italic;
+  opacity: 0.9;
+}
+
+.message.thinking::after {
+  content: '.';
+  animation: thinking-dots 1.5s infinite;
+}
+
+@keyframes thinking-dots {
+  0% {
+    content: '.';
+  }
+
+  33% {
+    content: '..';
+  }
+
+  66% {
+    content: '...';
+  }
+}
+
 @keyframes single-glow {
+
   0%,
   100% {
     box-shadow: 0 0 8px 2px rgba(255, 255, 255, 0.35),
       inset 0 0 0 rgba(0, 0, 0, 0);
   }
+
   50% {
     box-shadow: 0 0 14px 4px rgba(255, 255, 255, 0.75),
       inset 0 0 0 rgba(0, 0, 0, 0);
