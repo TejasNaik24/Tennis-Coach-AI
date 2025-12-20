@@ -48,7 +48,7 @@ def ask():
 
     try:
         completion = client.chat.completions.create(
-            model="HuggingFaceH4/zephyr-7b-beta",
+            model="Qwen/Qwen2.5-7B-Instruct",
             messages=messages
         )
         ai_response = completion.choices[0].message.content
