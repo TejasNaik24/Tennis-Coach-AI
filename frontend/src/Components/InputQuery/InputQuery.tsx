@@ -128,17 +128,13 @@ function InputQuery(): React.ReactElement | null {
 
   useEffect(() => {
     const chatBox = document.getElementById("chat-box");
-    if (chatBox && messages.length > 0) {
-      const lastMessage = messages[messages.length - 1];
-      if (lastMessage.type === "user") {
-        const messageElements = chatBox.getElementsByClassName("message");
-        const latestElement = messageElements[messageElements.length - 1];
-        if (latestElement) {
-          latestElement.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-      }
+    if (chatBox) {
+      chatBox.scrollTo({
+        top: chatBox.scrollHeight,
+        behavior: "smooth",
+      });
     }
-  }, [messages]);
+  }, [messages, isThinking]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
