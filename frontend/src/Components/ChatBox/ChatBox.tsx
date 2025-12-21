@@ -11,6 +11,26 @@ interface ChatBoxProps {
   isThinking?: boolean;
 }
 
+const Typewriter = ({ text, speed = 15 }: { text: string; speed?: number }) => {
+  const [displayedText, setDisplayedText] = useState("");
+
+  useEffect(() => {
+    let i = 0;
+    const chatBox = document.getElementById("chat-box");
+    const timer = setInterval(() => {
+      setDisplayedText(text.slice(0, i + 1));
+      i++;
+      if (chatBox) {
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+      if (i >= text.length) clearInterval(timer);
+    }, speed);
+    return () => clearInterval(timer);
+  }, [text, speed]);
+
+  return <>{displayedText}</>;
+};
+
 function ChatBox({ messages, isThinking }: ChatBoxProps) {
   const [glow, setGlow] = useState(false);
   const prevLength = useRef(messages.length);
@@ -33,7 +53,11 @@ function ChatBox({ messages, isThinking }: ChatBoxProps) {
     <div id="chat-box" className={glow ? "glow-once" : ""}>
       {messages.map((msg, index) => (
         <div key={index} className={`message ${msg.type}`}>
-          {msg.text}
+          {msg.type === "ai" && index === messages.length - 1 ? (
+            <Typewriter text={msg.text} />
+          ) : (
+            msg.text
+          )}
         </div>
       ))}
       {isThinking && <div className="message ai thinking">Thinking</div>}

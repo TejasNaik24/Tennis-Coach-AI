@@ -1,7 +1,6 @@
 #chat-box {
-  height: 55vh;
+  height: calc(100vh - 230px);
   overflow-y: auto;
-  scroll-behavior: smooth;
   width: 90%;
   max-width: 750px;
   margin: 0 auto 10px auto;
