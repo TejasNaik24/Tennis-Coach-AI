@@ -126,15 +126,7 @@ function InputQuery(): React.ReactElement | null {
     adjustHeight();
   }, []);
 
-  useEffect(() => {
-    const chatBox = document.getElementById("chat-box");
-    if (chatBox) {
-      chatBox.scrollTo({
-        top: chatBox.scrollHeight,
-        behavior: "smooth",
-      });
-    }
-  }, [messages, isThinking]);
+
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
