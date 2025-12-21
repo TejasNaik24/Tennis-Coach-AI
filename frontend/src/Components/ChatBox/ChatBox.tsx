@@ -31,12 +31,12 @@ function ChatBox({ messages, isThinking }: ChatBoxProps) {
 
   return (
     <div id="chat-box" className={glow ? "glow-once" : ""}>
-      {isThinking && <div className="message ai thinking">Thinking</div>}
-      {[...messages].reverse().map((msg, index) => (
-        <div key={`${messages.length - 1 - index}`} className={`message ${msg.type}`}>
+      {messages.map((msg, index) => (
+        <div key={index} className={`message ${msg.type}`}>
           {msg.text}
         </div>
       ))}
+      {isThinking && <div className="message ai thinking">Thinking</div>}
     </div>
   );
 }
