@@ -129,7 +129,7 @@ function InputQuery(): React.ReactElement | null {
   useEffect(() => {
     const chatBox = document.getElementById("chat-box");
     if (chatBox) {
-      chatBox.scrollTop = chatBox.scrollHeight;
+      chatBox.scrollTop = 0;
     }
   }, [messages]);
 
