@@ -129,10 +129,12 @@ function InputQuery(): React.ReactElement | null {
   useEffect(() => {
     const chatBox = document.getElementById("chat-box");
     if (chatBox) {
-      chatBox.scrollTo({
-        top: chatBox.scrollHeight,
-        behavior: "smooth",
-      });
+      setTimeout(() => {
+        chatBox.scrollTo({
+          top: chatBox.scrollHeight,
+          behavior: "smooth",
+        });
+      }, 100);
     }
   }, [messages, isThinking]);
 
