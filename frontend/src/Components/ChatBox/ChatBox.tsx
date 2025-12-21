@@ -16,9 +16,13 @@ const Typewriter = ({ text, speed = 15 }: { text: string; speed?: number }) => {
 
   useEffect(() => {
     let i = 0;
+    const chatBox = document.getElementById("chat-box");
     const timer = setInterval(() => {
       setDisplayedText(text.slice(0, i + 1));
       i++;
+      if (chatBox) {
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
       if (i >= text.length) clearInterval(timer);
     }, speed);
     return () => clearInterval(timer);
@@ -30,7 +34,6 @@ const Typewriter = ({ text, speed = 15 }: { text: string; speed?: number }) => {
 function ChatBox({ messages, isThinking }: ChatBoxProps) {
   const [glow, setGlow] = useState(false);
   const prevLength = useRef(messages.length);
-  const lastMessageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (messages.length > prevLength.current) {
@@ -39,14 +42,6 @@ function ChatBox({ messages, isThinking }: ChatBoxProps) {
       const timeout = setTimeout(() => {
         setGlow(false);
       }, 1500);
-
-      // Scroll the latest message to the top
-      if (lastMessageRef.current) {
-        lastMessageRef.current.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }
 
       return () => clearTimeout(timeout);
     }
@@ -57,11 +52,7 @@ function ChatBox({ messages, isThinking }: ChatBoxProps) {
   return (
     <div id="chat-box" className={glow ? "glow-once" : ""}>
       {messages.map((msg, index) => (
-        <div
-          key={index}
-          className={`message ${msg.type}`}
-          ref={index === messages.length - 1 ? lastMessageRef : null}
-        >
+        <div key={index} className={`message ${msg.type}`}>
           {msg.type === "ai" && index === messages.length - 1 ? (
             <Typewriter text={msg.text} />
           ) : (
@@ -69,11 +60,7 @@ function ChatBox({ messages, isThinking }: ChatBoxProps) {
           )}
         </div>
       ))}
-      {isThinking && (
-        <div className="message ai thinking" ref={lastMessageRef}>
-          Thinking
-        </div>
-      )}
+      {isThinking && <div className="message ai thinking">Thinking</div>}
     </div>
   );
 }
