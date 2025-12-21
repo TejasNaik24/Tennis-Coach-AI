@@ -18,6 +18,8 @@
   bottom: 100px;
   left: 50%;
   transform: translateX(-50%);
+  padding-bottom: calc(100vh - 300px);
+  /* Allow last message to scroll to top */
 }
 
 /* Base message style */

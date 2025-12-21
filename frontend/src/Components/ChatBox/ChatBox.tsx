@@ -20,9 +20,6 @@ const Typewriter = ({ text, speed = 15 }: { text: string; speed?: number }) => {
     const timer = setInterval(() => {
       setDisplayedText(text.slice(0, i + 1));
       i++;
-      if (chatBox) {
-        chatBox.scrollTop = chatBox.scrollHeight;
-      }
       if (i >= text.length) clearInterval(timer);
     }, speed);
     return () => clearInterval(timer);
