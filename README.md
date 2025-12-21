@@ -1,6 +1,6 @@
 # 🎾 Tennis-Coach-AI
 
-A global voice-enabled AI tennis coach. This project was built using React and TypeScript for the frontend, leveraging Vite as the build tool for a fast and modern development experience, and Python with Flask for backend logic. Instead of using cloud-based LLMs like OpenAI, the app uses the Hugging Face Inference API to interact with a Mistral language model, requiring only an API key for secure access. The system supports both speech-to-text and text-to-speech, allowing users to ask tennis-related questions out loud and hear spoken responses, simulating a natural conversation with a virtual tennis coach, or use dictate to send messages. The entire application can also be containerized using Docker for streamlined deployment and development.
+A global voice-enabled AI tennis coach. This project was built using React and TypeScript for the frontend, leveraging Vite as the build tool for a fast and modern development experience, and Python with Flask for backend logic. Instead of using cloud-based LLMs like OpenAI, the app uses the Hugging Face Inference API to interact with a Qwen language model, requiring only an API key for secure access. The system supports both speech-to-text and text-to-speech, allowing users to ask tennis-related questions out loud and hear spoken responses, simulating a natural conversation with a virtual tennis coach, or use dictate to send messages. The entire application can also be containerized using Docker for streamlined deployment and development.
 
 Check out the website here!:
 
@@ -13,7 +13,7 @@ Check out the website here!:
 
 - 🎙️ Toggle dictation on/off with the microphone button to enter talk to enter text
 - 🗣️ Live transcription with `react-speech-recognition`
-- 🧠 Chat responses powered by Hugging Face’s Inference API using open-weight models like Mistral.
+- 🧠 Chat responses powered by Hugging Face’s Inference API using open-weight models like Qwen/Qwen2.5-7B-Instruct.
 - 🔊 Voice Mode: Talk naturally, like a real conversation — speak, and it automatically sends your message and talks back to you.
 - 🧼 Dynamic UI with input resizing and smooth voice mode transitions
 - ✅ Fully keyboard accessible
@@ -107,7 +107,7 @@ TENNIS-COACH-AI/
 
 2. Create a Hugging Face API key:
 Go to [https://huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) and create a new read access token.
-Copy this key — you’ll need it to authenticate requests to the Mistral model.
+Copy this key — you’ll need it to authenticate requests to the Qwen model.
    
 3. Configure environment variables:
 ```env
@@ -136,7 +136,7 @@ git clone https://github.com/TejasNaik24/Tennis-Coach-AI.git
 
 2. Create a Hugging Face API key:
 Go to [https://huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) and create a new read access token.
-Copy this key — you’ll need it to authenticate requests to the Mistral model.
+Copy this key — you’ll need it to authenticate requests to the Qwen model.
 
 3. **Create the .env file in the backend folder**
 
@@ -180,7 +180,7 @@ git clone https://github.com/TejasNaik24/Tennis-Coach-AI.git
 
 2. Create a Hugging Face API key:
 Go to [https://huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) and create a new read access token.
-Copy this key — you’ll need it to authenticate requests to the Mistral model.
+Copy this key — you’ll need it to authenticate requests to the Qwen model.
 
 3. **Create the .env file in the backend folder**
 
