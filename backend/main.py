@@ -42,17 +42,32 @@ def ask():
 
     # Build stateless message list for LLM
     messages = [
-        {"role": "system", "content": "You are an advanced AI tennis coach. Your sole purpose is to help users with tennis-related topics: technique, strategy, fitness, equipment, and mental game. STRICT RULE: If a user asks about ANYTHING unrelated to tennis (e.g., cars, politics, coding, general life), you MUST politely refuse to answer. DO NOT try to relate the off-topic subject to tennis (e.g., do NOT say 'cars help transport tennis gear'). Simply say: 'As a tennis coach AI, I can only help with tennis-related things. Let's discuss your serve, forehand, or match strategy instead!'"},
+        {"role": "system", "content": """You are an advanced AI tennis coach.
+Your sole purpose is to help users with tennis-related topics: technique, strategy, fitness, equipment, and mental game.
+
+STRICT DOMAIN RULE: If a user asks about ANYTHING unrelated to tennis (e.g., cars, politics, coding, general life), you MUST politely refuse to answer. DO NOT try to relate the off-topic subject to tennis. Simply say: 'As a tennis coach AI, I can only help with tennis-related things. Let's discuss your serve, forehand, or match strategy instead!'
+
+REASONING RULE: Before providing your final answer, you must first think through your response. Wrap your internal thought process in <thought> tags at the very beginning of your response.
+In your thoughts, outline your plan, consider the user's skill level, and decide on the best coaching advice.
+Example:
+<thought> The user is asking about their backhand. I will suggest checking their grip and follow-through. </thought> Your backhand will improve if you...
+"""},
         {"role": "user", "content": user_message}
     ]
 
     try:
-        completion = client.chat.completions.create(
-            model="Qwen/Qwen2.5-7B-Instruct",
-            messages=messages
-        )
-        ai_response = completion.choices[0].message.content
-        return jsonify({"reply": ai_response})
+        def generate():
+            stream = client.chat.completions.create(
+                model="Qwen/Qwen2.5-7B-Instruct",
+                messages=messages,
+                stream=True
+            )
+            for chunk in stream:
+                content = chunk.choices[0].delta.content
+                if content:
+                    yield content
+
+        return app.response_class(generate(), mimetype='text/plain')
 
     except Exception as e:
         print(f"Error from LLM: {str(e)}", file=sys.stderr)

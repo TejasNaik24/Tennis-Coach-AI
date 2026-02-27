@@ -1,10 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import "./ChatBox.css";
 
-type Message = {
+interface Message {
   type: "user" | "ai";
   text: string;
-};
+  thought?: string;
+  isGenerating?: boolean;
+}
 
 interface ChatBoxProps {
   messages: Message[];
@@ -31,36 +33,99 @@ const Typewriter = ({ text, speed = 15 }: { text: string; speed?: number }) => {
   return <>{displayedText}</>;
 };
 
-function ChatBox({ messages, isThinking }: ChatBoxProps) {
-  const [glow, setGlow] = useState(false);
-  const prevLength = useRef(messages.length);
+const ReasoningMessage = ({ msg, isLast }: { msg: Message; isLast: boolean }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [seconds, setSeconds] = useState(0);
+  const [totalSeconds, setTotalSeconds] = useState<number | null>(null);
+  const hasThoughts = msg.thought && msg.thought.trim().length > 0;
 
   useEffect(() => {
-    if (messages.length > prevLength.current) {
-      setGlow(true);
-
-      const timeout = setTimeout(() => {
-        setGlow(false);
-      }, 1500);
-
-      return () => clearTimeout(timeout);
+    let interval: any;
+    if (msg.type === "ai" && !msg.text && totalSeconds === null) {
+      interval = setInterval(() => {
+        setSeconds((s) => s + 1);
+      }, 1000);
+    } else if (msg.text && totalSeconds === null) {
+      setTotalSeconds(seconds);
     }
+    return () => clearInterval(interval);
+  }, [msg.text, totalSeconds, seconds]);
 
-    prevLength.current = messages.length;
-  }, [messages]);
+  // Auto-collapse logic when done thinking (optional, based on req)
+  useEffect(() => {
+    if (msg.text && isExpanded) {
+      setIsExpanded(false);
+    }
+  }, [msg.text]);
 
   return (
-    <div id="chat-box" className={glow ? "glow-once" : ""}>
-      {messages.map((msg, index) => (
-        <div key={index} className={`message ${msg.type}`}>
-          {msg.type === "ai" && index === messages.length - 1 ? (
-            <Typewriter text={msg.text} />
-          ) : (
-            msg.text
+    <div className={`message ai reasoning-block ${isLast ? "glow-once" : ""}`}>
+      {/* Thinking / Thought Status */}
+      <div className="thinking-status">
+        {!msg.text ? (
+          <>
+            <span className="pulsing-dots">Thinking</span>
+            <span className="thinking-timer">({seconds}s)</span>
+          </>
+        ) : (
+          <div className="thought-summary-badge" onClick={() => setIsExpanded(!isExpanded)}>
+            Thought for {totalSeconds || seconds}s {isExpanded ? "▾" : "▶"}
+          </div>
+        )}
+      </div>
+
+      {/* Thought Collapsible */}
+      {hasThoughts && (
+        <div className="thought-collapsible">
+          {isExpanded && (
+            <div className="thought-content">
+              {msg.thought}
+            </div>
           )}
         </div>
-      ))}
-      {isThinking && <div className="message ai thinking">Thinking</div>}
+      )}
+
+      {/* Generating Status */}
+      {msg.isGenerating && !msg.text && (
+        <div className="generating-status pulsing-dots">Generating</div>
+      )}
+
+      {/* Final Answer */}
+      {msg.text && (
+        <div className="final-answer">
+          {isLast ? <Typewriter text={msg.text} /> : msg.text}
+        </div>
+      )}
+    </div>
+  );
+};
+
+function ChatBox({ messages, isThinking }: ChatBoxProps) {
+
+  // We don't need the local glow state anymore as ReasoningMessage handles its own entry
+  return (
+    <div id="chat-box">
+      {messages.map((msg, index) => {
+        if (msg.type === "user") {
+          return (
+            <div key={index} className="message user">
+              {msg.text}
+            </div>
+          );
+        }
+        return (
+          <ReasoningMessage
+            key={index}
+            msg={msg}
+            isLast={index === messages.length - 1}
+          />
+        );
+      })}
+      {isThinking && (
+        <div className="message ai reasoning-block pulsing-dots">
+          <div className="thinking-status">Thinking</div>
+        </div>
+      )}
     </div>
   );
 }
