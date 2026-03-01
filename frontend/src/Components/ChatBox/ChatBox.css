@@ -118,6 +118,14 @@
   margin: 0 0 0.3rem 0;
 }
 
+.thought-text.visible {
+  display: block;
+}
+
+.thought-text.hidden {
+  display: none;
+}
+
 /* Generating label */
 .generating-label {
   margin-top: 0.5rem;

@@ -36,7 +36,7 @@ const Typewriter = ({ text, speed = 15 }: { text: string; speed?: number }) => {
   return <>{displayed}</>;
 };
 
-/* ── ThinkingBlock: renders inside a normal AI message bubble ── */
+/* ── ThinkingBlock ── */
 const ThinkingBlock = ({
   thinkingState,
   finalThinking,
@@ -51,9 +51,37 @@ const ThinkingBlock = ({
   thinkingElapsed?: number;
 }) => {
   const [expanded, setExpanded] = useState(false);
+  const [streamedText, setStreamedText] = useState("");
+  const streamRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const wordIndexRef = useRef(0);
   const prevPhase = useRef<string>("idle");
-  const prevThinkingLen = useRef(0);
   const thinkingText = thinkingState?.thinking || finalThinking || "";
+  const hasThinkingText = thinkingText.length > 0;
+
+  // Stream thinking text word-by-word (persists across expand/collapse)
+  useEffect(() => {
+    if (!thinkingText || finalThinking) return; // Don't stream for completed messages
+
+    const words = thinkingText.split(/(\s+)/); // Keep whitespace
+    wordIndexRef.current = 0;
+    setStreamedText("");
+
+    streamRef.current = setInterval(() => {
+      if (wordIndexRef.current < words.length) {
+        const nextChunk = words.slice(0, wordIndexRef.current + 1).join("");
+        setStreamedText(nextChunk);
+        wordIndexRef.current++;
+        const chatBox = document.getElementById("chat-box");
+        if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+      } else {
+        if (streamRef.current) clearInterval(streamRef.current);
+      }
+    }, 30); // ~30ms per word token for fast streaming
+
+    return () => {
+      if (streamRef.current) clearInterval(streamRef.current);
+    };
+  }, [thinkingText, finalThinking]);
 
   // Auto-collapse when generating starts
   useEffect(() => {
@@ -67,24 +95,11 @@ const ThinkingBlock = ({
     prevPhase.current = thinkingState.phase;
   }, [thinkingState?.phase]);
 
-  // Auto-expand when thinking text first arrives
-  useEffect(() => {
-    if (
-      thinkingState &&
-      thinkingState.phase === "thinking" &&
-      thinkingText.length > 0 &&
-      prevThinkingLen.current === 0
-    ) {
-      setExpanded(true);
-    }
-    prevThinkingLen.current = thinkingText.length;
-  }, [thinkingText, thinkingState?.phase]);
-
   const isLive = thinkingState && thinkingState.phase !== "idle";
   const phase = thinkingState?.phase || "idle";
   const elapsed = thinkingState?.elapsed || 0;
 
-  // ── Completed message: "Thought for Xs ▶" badge + answer ──
+  // ── Completed message ──
   if (!isLive && finalThinking) {
     return (
       <div className="message ai">
@@ -110,25 +125,23 @@ const ThinkingBlock = ({
 
   // ── Live thinking / generating ──
   if (isLive) {
-    const showTimer = elapsed >= 2;
-
     return (
       <div className="message ai">
         {/* Status line */}
         <div className="thinking-header">
           <span className="thinking-label">
             {phase === "thinking" ? (
-              showTimer ? (
-                <>Thinking for {elapsed}s<span className="dot-anim"></span></>
-              ) : (
+              !hasThinkingText ? (
                 <>Thinking<span className="dot-anim"></span></>
+              ) : (
+                <>Thinking for {elapsed}s<span className="dot-anim"></span></>
               )
             ) : (
               <>Thought for {elapsed}s</>
             )}
           </span>
-          {/* Arrow only shows once timer is active */}
-          {showTimer && (
+          {/* Arrow only shows once thinking text has arrived */}
+          {hasThinkingText && (
             <span
               className={`toggle-arrow ${expanded ? "expanded" : ""}`}
               onClick={() => setExpanded(!expanded)}
@@ -136,10 +149,10 @@ const ThinkingBlock = ({
           )}
         </div>
 
-        {/* Expandable thought process */}
-        {expanded && thinkingText && (
-          <div className="thought-text">
-            <Typewriter text={thinkingText} speed={10} />
+        {/* Thought process - always rendered, visibility toggled via CSS */}
+        {hasThinkingText && (
+          <div className={`thought-text ${expanded ? "visible" : "hidden"}`}>
+            {streamedText}
           </div>
         )}
 
@@ -156,7 +169,7 @@ const ThinkingBlock = ({
   return null;
 };
 
-/* ── ChatBox: main chat container ── */
+/* ── ChatBox ── */
 function ChatBox({ messages, thinkingState }: ChatBoxProps) {
   const [glow, setGlow] = useState(false);
   const prevLength = useRef(messages.length);
@@ -200,7 +213,6 @@ function ChatBox({ messages, thinkingState }: ChatBoxProps) {
         );
       })}
 
-      {/* Live thinking block */}
       {isLive && (
         <ThinkingBlock thinkingState={thinkingState} isLatest={true} />
       )}
