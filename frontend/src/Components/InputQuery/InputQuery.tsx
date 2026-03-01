@@ -1,6 +1,7 @@
 import "./InputQuery.css";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import ChatBox from "../ChatBox/ChatBox";
+import type { Message } from "../ChatBox/ChatBox";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
@@ -23,12 +24,15 @@ function InputQuery(): React.ReactElement | null {
 
   const [text, setText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [messages, setMessages] = useState<
-    { type: "user" | "ai"; text: string }[]
-  >([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [voiceMode, setVoiceMode] = useState(false);
   const [isMaxed, setIsMaxed] = useState(false);
-  const [isThinking, setIsThinking] = useState(false);
+  const [thinkingState, setThinkingState] = useState<{
+    phase: "thinking" | "generating" | "idle";
+    elapsed: number;
+    thinking: string;
+  }>({ phase: "idle", elapsed: 0, thinking: "" });
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const adjustHeight = () => {
     if (textareaRef.current) {
@@ -126,6 +130,25 @@ function InputQuery(): React.ReactElement | null {
     adjustHeight();
   }, []);
 
+  const startThinkingTimer = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    setThinkingState({ phase: "thinking", elapsed: 0, thinking: "" });
+    const start = Date.now();
+    timerRef.current = setInterval(() => {
+      setThinkingState((prev) => ({
+        ...prev,
+        elapsed: Math.floor((Date.now() - start) / 1000),
+      }));
+    }, 1000);
+  }, []);
+
+  const stopThinkingTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+
   useEffect(() => {
     const chatBox = document.getElementById("chat-box");
     if (chatBox) {
@@ -134,7 +157,7 @@ function InputQuery(): React.ReactElement | null {
         behavior: "smooth",
       });
     }
-  }, [messages, isThinking]);
+  }, [messages, thinkingState]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -143,34 +166,52 @@ function InputQuery(): React.ReactElement | null {
     }
   };
 
+  const handleApiResponse = useCallback(
+    (data: { thinking: string; reply: string }) => {
+      stopThinkingTimer();
+
+      // Show thinking text, transition to generating
+      setThinkingState((prev) => ({
+        ...prev,
+        phase: "generating",
+        thinking: data.thinking || "",
+      }));
+
+      // After a short "generating" delay, add the final message
+      setTimeout(() => {
+        setThinkingState({ phase: "idle", elapsed: 0, thinking: "" });
+        addMessage("ai", data.reply, data.thinking);
+      }, 1500);
+    },
+    [stopThinkingTimer]
+  );
+
+  const handleApiError = useCallback(
+    (error: any) => {
+      console.error("Error:", error);
+      stopThinkingTimer();
+      setThinkingState({ phase: "idle", elapsed: 0, thinking: "" });
+      addMessage("ai", "Sorry, something went wrong.");
+    },
+    [stopThinkingTimer]
+  );
+
   useEffect(() => {
     if (voiceMode && transcript.trim()) {
-      // Wait a tiny bit to ensure transcript is done
       const timeout = setTimeout(() => {
-        // Add user's spoken message to the chat
         addMessage("user", transcript.trim());
-
-        // Clear the transcript and stop listening
         resetTranscript();
 
-        // Send to backend
-        setIsThinking(true);
+        startThinkingTimer();
         fetch(`${import.meta.env.VITE_API_URL}/ask`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: transcript.trim() }),
         })
           .then((response) => response.json())
-          .then((data: { reply: string }) => {
-            setIsThinking(false);
-            addMessage("ai", data.reply);
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-            setIsThinking(false);
-            addMessage("ai", "Sorry, something went wrong.");
-          });
-      }, 1000); // optional buffer
+          .then(handleApiResponse)
+          .catch(handleApiError);
+      }, 1000);
 
       return () => clearTimeout(timeout);
     }
@@ -196,41 +237,30 @@ function InputQuery(): React.ReactElement | null {
     }
     resetTranscript();
 
-    setIsThinking(true);
+    startThinkingTimer();
     fetch(`${import.meta.env.VITE_API_URL}/ask`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message }),
     })
       .then((response: Response) => response.json())
-      .then((data: { reply: string }) => {
-        setIsThinking(false);
-        addMessage("ai", data.reply);
-        // update UI here
-      })
-      .catch((error: any) => {
-        console.error("Error:", error);
-        // show error UI
-        setIsThinking(false);
-        addMessage("ai", "Sorry, something went wrong.");
-      });
+      .then(handleApiResponse)
+      .catch(handleApiError);
   };
 
-  const addMessage = (type: "user" | "ai", text: string) => {
-    setMessages((prev) => [...prev, { type, text }]);
+  const addMessage = (type: "user" | "ai", text: string, thinking?: string) => {
+    setMessages((prev) => [...prev, { type, text, thinking }]);
 
     if (type === "ai" && voiceMode) {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "en-US";
 
-      // 🛑 Stop mic BEFORE speech starts (prevents AI echo pickup)
       try {
         SpeechRecognition.stopListening();
       } catch (err) {
         console.error("Mic error before TTS:", err);
       }
 
-      // 🔊 Resume mic AFTER speech ends
       utterance.onend = () => {
         try {
           SpeechRecognition.startListening({ continuous: true });
@@ -239,14 +269,13 @@ function InputQuery(): React.ReactElement | null {
         }
       };
 
-      // 🗣️ Start speaking
       window.speechSynthesis.speak(utterance);
     }
   };
 
   return (
     <>
-      <ChatBox messages={messages} isThinking={isThinking} />
+      <ChatBox messages={messages} thinkingState={thinkingState} />
       <div id="inputquery-container">
         {!voiceMode && (
           <button id="clear-button" title="Clear" onClick={clearMessages}>

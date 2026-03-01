@@ -42,7 +42,12 @@ def ask():
 
     # Build stateless message list for LLM
     messages = [
-        {"role": "system", "content": "You are an advanced AI tennis coach. Your sole purpose is to help users with tennis-related topics: technique, strategy, fitness, equipment, and mental game. STRICT RULE: If a user asks about ANYTHING unrelated to tennis (e.g., cars, politics, coding, general life), you MUST politely refuse to answer. DO NOT try to relate the off-topic subject to tennis (e.g., do NOT say 'cars help transport tennis gear'). Simply say: 'As a tennis coach AI, I can only help with tennis-related things. Let's discuss your serve, forehand, or match strategy instead!'"},
+        {"role": "system", "content": (
+            "You are an advanced AI tennis coach. Your sole purpose is to help users with tennis-related topics: technique, strategy, fitness, equipment, and mental game. "
+            "STRICT RULE: If a user asks about ANYTHING unrelated to tennis (e.g., cars, politics, coding, general life), you MUST politely refuse. DO NOT relate it to tennis. Simply say: 'As a tennis coach AI, I can only help with tennis-related things. Let's discuss your serve, forehand, or match strategy instead!' "
+            "THINKING RULE: You MUST always begin your response with a <think> block containing your internal reasoning and planning. Inside <think>, analyze the user question step by step, consider relevant tennis concepts, and plan your answer. Then close with </think> and write your final polished answer. "
+            "Example format:\n<think>\nThe user is asking about improving their serve. I should cover grip, toss, and follow-through...\n</think>\nHere are some tips to improve your serve..."
+        )},
         {"role": "user", "content": user_message}
     ]
 
@@ -52,11 +57,21 @@ def ask():
             messages=messages
         )
         ai_response = completion.choices[0].message.content
-        return jsonify({"reply": ai_response})
+
+        # Parse <think>...</think> block from the response
+        think_match = re.search(r'<think>(.*?)</think>', ai_response, re.DOTALL)
+        if think_match:
+            thinking_text = think_match.group(1).strip()
+            final_answer = ai_response[think_match.end():].strip()
+        else:
+            thinking_text = ""
+            final_answer = ai_response.strip()
+
+        return jsonify({"thinking": thinking_text, "reply": final_answer})
 
     except Exception as e:
         print(f"Error from LLM: {str(e)}", file=sys.stderr)
-        return jsonify({"reply": f"Error: {str(e)}"}), 500
+        return jsonify({"thinking": "", "reply": f"Error: {str(e)}"}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, debug=True)
