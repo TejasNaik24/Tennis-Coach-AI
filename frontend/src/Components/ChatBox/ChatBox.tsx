@@ -130,30 +130,31 @@ const ThinkingBlock = ({
         {/* Status line */}
         <div className="thinking-status">
           {phase === "thinking" ? (
-            <>
-              Thinking for {elapsed}s
-              <span className="dot-animation"></span>
-            </>
+            elapsed < 2 ? (
+              <>Thinking<span className="dot-animation"></span></>
+            ) : (
+              <>Thinking for {elapsed}s<span className="dot-animation"></span></>
+            )
           ) : (
             <>Thought for {elapsed}s</>
           )}
         </div>
 
-        {/* Collapsible thought process */}
-        {thinkingText && (
-          <>
-            <div
-              className="thought-toggle"
-              onClick={() => setExpanded(!expanded)}
-            >
-              <span className={`arrow ${expanded ? "expanded" : ""}`}>▶</span>
-              Thought process
-            </div>
-            <div className={`thought-content ${expanded ? "expanded" : ""}`}>
-              <ThoughtChunker text={thinkingText} />
-            </div>
-          </>
-        )}
+        {/* Collapsible thought process - always show toggle */}
+        <div
+          className="thought-toggle"
+          onClick={() => setExpanded(!expanded)}
+        >
+          <span className={`arrow ${expanded ? "expanded" : ""}`}>▶</span>
+          Thought process
+        </div>
+        <div className={`thought-content ${expanded ? "expanded" : ""}`}>
+          {thinkingText ? (
+            <ThoughtChunker text={thinkingText} />
+          ) : (
+            <p>Thinking...</p>
+          )}
+        </div>
 
         {/* Generating phase */}
         {phase === "generating" && (
