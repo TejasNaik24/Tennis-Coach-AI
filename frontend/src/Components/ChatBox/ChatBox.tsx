@@ -81,10 +81,15 @@ const ThinkingBlock = ({
     };
   }, [thinkingText, finalThinking]);
 
-  // Internal auto-scroll for the thought box
+  // Internal auto-scroll for the thought box (with manual override)
   useEffect(() => {
     if (thoughtBoxRef.current && expanded) {
-      thoughtBoxRef.current.scrollTop = thoughtBoxRef.current.scrollHeight;
+      const box = thoughtBoxRef.current;
+      const isAtBottom = box.scrollHeight - box.scrollTop <= box.clientHeight + 50;
+
+      if (isAtBottom) {
+        box.scrollTop = box.scrollHeight;
+      }
     }
   }, [streamedText, expanded]);
 
