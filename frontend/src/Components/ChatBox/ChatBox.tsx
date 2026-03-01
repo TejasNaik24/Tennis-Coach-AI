@@ -35,41 +35,7 @@ const Typewriter = ({ text, speed = 15 }: { text: string; speed?: number }) => {
   return <>{displayed}</>;
 };
 
-/* ── ThoughtChunker: streams thinking text in paragraph chunks ── */
-const ThoughtChunker = ({ text }: { text: string }) => {
-  const [chunks, setChunks] = useState<string[]>([]);
-
-  useEffect(() => {
-    const paragraphs = text
-      .split(/\n+/)
-      .map((p) => p.trim())
-      .filter((p) => p.length > 0);
-
-    let i = 0;
-    const timer = setInterval(() => {
-      if (i < paragraphs.length) {
-        setChunks((prev) => [...prev, paragraphs[i]]);
-        i++;
-        const chatBox = document.getElementById("chat-box");
-        if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
-      } else {
-        clearInterval(timer);
-      }
-    }, 300);
-
-    return () => clearInterval(timer);
-  }, [text]);
-
-  return (
-    <>
-      {chunks.map((chunk, i) => (
-        <p key={i}>{chunk}</p>
-      ))}
-    </>
-  );
-};
-
-/* ── ThinkingBlock: the full thinking mode UI ── */
+/* ── ThinkingBlock: renders inside a normal AI message bubble ── */
 const ThinkingBlock = ({
   thinkingState,
   finalThinking,
@@ -85,7 +51,7 @@ const ThinkingBlock = ({
   const prevPhase = useRef<string>("idle");
   const thinkingText = thinkingState?.thinking || finalThinking || "";
 
-  // Auto-expand during thinking, auto-collapse when generating starts
+  // Auto-collapse when generating starts
   useEffect(() => {
     if (!thinkingState) return;
     if (
@@ -101,21 +67,23 @@ const ThinkingBlock = ({
   const phase = thinkingState?.phase || "idle";
   const elapsed = thinkingState?.elapsed || 0;
 
-  // For completed messages: show the badge
+  // ── Completed message: "Thought for Xs ▶" badge + answer ──
   if (!isLive && finalThinking) {
     return (
-      <div className="thinking-block">
-        <div className="thought-toggle" onClick={() => setExpanded(!expanded)}>
-          <span className={`arrow ${expanded ? "expanded" : ""}`}>▶</span>
-          Thought process
+      <div className="message ai">
+        <div className="thinking-header" onClick={() => setExpanded(!expanded)}>
+          <span className="thinking-label">Thought for {elapsed || "a few"}s</span>
+          <span className={`toggle-arrow ${expanded ? "expanded" : ""}`}>▶</span>
         </div>
-        <div className={`thought-content ${expanded ? "expanded" : ""}`}>
-          {thinkingText.split(/\n+/).filter(Boolean).map((p, i) => (
-            <p key={i}>{p.trim()}</p>
-          ))}
-        </div>
+        {expanded && (
+          <div className="thought-text">
+            {thinkingText.split(/\n+/).filter(Boolean).map((p, i) => (
+              <p key={i}>{p.trim()}</p>
+            ))}
+          </div>
+        )}
         {finalAnswer && (
-          <div className="final-answer">
+          <div className="final-answer-text">
             {isLatest ? <Typewriter text={finalAnswer} /> : finalAnswer}
           </div>
         )}
@@ -123,43 +91,45 @@ const ThinkingBlock = ({
     );
   }
 
-  // Live thinking / generating
+  // ── Live thinking / generating ──
   if (isLive) {
+    const showTimer = elapsed >= 2;
+
     return (
-      <div className="thinking-block">
+      <div className="message ai">
         {/* Status line */}
-        <div className="thinking-status">
-          {phase === "thinking" ? (
-            elapsed < 2 ? (
-              <>Thinking<span className="dot-animation"></span></>
+        <div className="thinking-header">
+          <span className="thinking-label">
+            {phase === "thinking" ? (
+              showTimer ? (
+                <>Thinking for {elapsed}s<span className="dot-anim"></span></>
+              ) : (
+                <>Thinking<span className="dot-anim"></span></>
+              )
             ) : (
-              <>Thinking for {elapsed}s<span className="dot-animation"></span></>
-            )
-          ) : (
-            <>Thought for {elapsed}s</>
+              <>Thought for {elapsed}s</>
+            )}
+          </span>
+          {/* Arrow only shows once timer is active */}
+          {showTimer && (
+            <span
+              className={`toggle-arrow ${expanded ? "expanded" : ""}`}
+              onClick={() => setExpanded(!expanded)}
+            >▶</span>
           )}
         </div>
 
-        {/* Collapsible thought process - always show toggle */}
-        <div
-          className="thought-toggle"
-          onClick={() => setExpanded(!expanded)}
-        >
-          <span className={`arrow ${expanded ? "expanded" : ""}`}>▶</span>
-          Thought process
-        </div>
-        <div className={`thought-content ${expanded ? "expanded" : ""}`}>
-          {thinkingText ? (
-            <ThoughtChunker text={thinkingText} />
-          ) : (
-            <p>Thinking...</p>
-          )}
-        </div>
+        {/* Expandable thought process */}
+        {expanded && thinkingText && (
+          <div className="thought-text">
+            <Typewriter text={thinkingText} speed={10} />
+          </div>
+        )}
 
         {/* Generating phase */}
         {phase === "generating" && (
-          <div className="generating-status">
-            Generating<span className="dot-animation"></span>
+          <div className="generating-label">
+            Generating<span className="dot-anim"></span>
           </div>
         )}
       </div>
@@ -183,8 +153,7 @@ function ChatBox({ messages, thinkingState }: ChatBoxProps) {
     prevLength.current = messages.length;
   }, [messages]);
 
-  const isLive =
-    thinkingState && thinkingState.phase !== "idle";
+  const isLive = thinkingState && thinkingState.phase !== "idle";
 
   return (
     <div id="chat-box" className={glow ? "glow-once" : ""}>
