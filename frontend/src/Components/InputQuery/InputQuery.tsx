@@ -32,6 +32,7 @@ function InputQuery(): React.ReactElement | null {
     elapsed: number;
     thinking: string;
   }>({ phase: "idle", elapsed: 0, thinking: "" });
+  const [showScrollButton, setShowScrollButton] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const adjustHeight = () => {
@@ -149,15 +150,64 @@ function InputQuery(): React.ReactElement | null {
     }
   }, []);
 
-  useEffect(() => {
+  // Manual scroll to bottom handler
+  const scrollToBottom = useCallback(() => {
     const chatBox = document.getElementById("chat-box");
     if (chatBox) {
       chatBox.scrollTo({
         top: chatBox.scrollHeight,
         behavior: "smooth",
       });
+      setShowScrollButton(false);
     }
-  }, [messages, thinkingState]);
+  }, []);
+
+  // Monitor scroll position to show/hide button
+  useEffect(() => {
+    const chatBox = document.getElementById("chat-box");
+    if (!chatBox) return;
+
+    const handleScroll = () => {
+      const isAtBottom =
+        chatBox.scrollHeight - chatBox.scrollTop <= chatBox.clientHeight + 100;
+      setShowScrollButton(!isAtBottom);
+    };
+
+    chatBox.addEventListener("scroll", handleScroll);
+    return () => chatBox.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Auto-scroll ONLY when a new user message is added
+  useEffect(() => {
+    if (messages.length > 0 && messages[messages.length - 1].type === "user") {
+      scrollToBottom();
+    }
+  }, [messages.length, scrollToBottom]);
+
+  const addMessage = useCallback((type: "user" | "ai", text: string, thinking?: string, thinkingElapsed?: number) => {
+    setMessages((prev) => [...prev, { type, text, thinking, thinkingElapsed }]);
+
+    if (type === "ai" && voiceMode) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-US";
+
+      try {
+        SpeechRecognition.stopListening();
+      } catch (err) {
+        console.error("Mic error before TTS:", err);
+      }
+
+      utterance.onend = () => {
+        try {
+          SpeechRecognition.startListening({ continuous: true });
+        } catch (err) {
+          console.error("Mic error on TTS end:", err);
+        }
+      };
+
+      window.speechSynthesis.speak(utterance);
+    }
+  }, [voiceMode]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -182,15 +232,15 @@ function InputQuery(): React.ReactElement | null {
       setTimeout(() => {
         stopThinkingTimer();
 
-        // Capture elapsed before changing phase
+        // Capture elapsed and move to generating phase
         setThinkingState((prev) => {
           const capturedElapsed = prev.elapsed;
 
-          // Set to generating phase
+          // Switch to generating
           setTimeout(() => {
             setThinkingState((p) => ({ ...p, phase: "generating" }));
 
-            // Step 3: After generating delay, add the final message
+            // Step 3: Wait 3 seconds in generating phase then finalize
             setTimeout(() => {
               setThinkingState({ phase: "idle", elapsed: 0, thinking: "" });
               addMessage("ai", data.reply, data.thinking, capturedElapsed);
@@ -201,7 +251,7 @@ function InputQuery(): React.ReactElement | null {
         });
       }, streamDuration);
     },
-    [stopThinkingTimer]
+    [stopThinkingTimer, addMessage]
   );
 
   const handleApiError = useCallback(
@@ -266,34 +316,21 @@ function InputQuery(): React.ReactElement | null {
       .catch(handleApiError);
   };
 
-  const addMessage = (type: "user" | "ai", text: string, thinking?: string, thinkingElapsed?: number) => {
-    setMessages((prev) => [...prev, { type, text, thinking, thinkingElapsed }]);
 
-    if (type === "ai" && voiceMode) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "en-US";
-
-      try {
-        SpeechRecognition.stopListening();
-      } catch (err) {
-        console.error("Mic error before TTS:", err);
-      }
-
-      utterance.onend = () => {
-        try {
-          SpeechRecognition.startListening({ continuous: true });
-        } catch (err) {
-          console.error("Mic error on TTS end:", err);
-        }
-      };
-
-      window.speechSynthesis.speak(utterance);
-    }
-  };
 
   return (
     <>
       <ChatBox messages={messages} thinkingState={thinkingState} />
+
+      {/* Manual Scroll Button */}
+      <div
+        className={`scroll-arrow ${showScrollButton ? "" : "hidden"}`}
+        onClick={scrollToBottom}
+        title="Scroll to bottom"
+      >
+        ↓
+      </div>
+
       <div id="inputquery-container">
         {!voiceMode && (
           <button id="clear-button" title="Clear" onClick={clearMessages}>

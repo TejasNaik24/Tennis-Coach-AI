@@ -51,40 +51,42 @@ const ThinkingBlock = ({
   const [expanded, setExpanded] = useState(false);
   const [streamedText, setStreamedText] = useState("");
   const streamRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const sentenceIndexRef = useRef(0);
-  const prevPhase = useRef<string>("idle");
   const thoughtBoxRef = useRef<HTMLDivElement>(null);
+  const chunkIndexRef = useRef(0);
+  const prevPhase = useRef<string>("idle");
   const thinkingText = thinkingState?.thinking || finalThinking || "";
   const hasThinkingText = thinkingText.length > 0;
 
-  // Stream thinking text sentence-by-sentence
+  // Stream thinking text sentence-by-sentence (faster)
   useEffect(() => {
     if (!thinkingText || finalThinking) return;
 
-    // Split by sentence endings (. ! ?) followed by a space
-    const sentences = thinkingText.match(/[^.!?]+[.!?]+(?:\s+|$)|[^.!?]+$/g) || [thinkingText];
-    sentenceIndexRef.current = 0;
+    // Split by sentence-like boundaries (punctuation followed by space)
+    const chunks = thinkingText.split(/(?<=[.!?])\s+/);
+    chunkIndexRef.current = 0;
     setStreamedText("");
 
     streamRef.current = setInterval(() => {
-      if (sentenceIndexRef.current < sentences.length) {
-        const nextChunk = sentences.slice(0, sentenceIndexRef.current + 1).join("");
+      if (chunkIndexRef.current < chunks.length) {
+        const nextChunk = chunks.slice(0, chunkIndexRef.current + 1).join(" ");
         setStreamedText(nextChunk);
-        sentenceIndexRef.current++;
-
-        // Auto-scroll the thought box, not the whole window
-        if (thoughtBoxRef.current) {
-          thoughtBoxRef.current.scrollTop = thoughtBoxRef.current.scrollHeight;
-        }
+        chunkIndexRef.current++;
       } else {
         if (streamRef.current) clearInterval(streamRef.current);
       }
-    }, 450); // ~450ms per sentence for slow reading pace
+    }, 250); // Pulse in a chunk every 250ms
 
     return () => {
       if (streamRef.current) clearInterval(streamRef.current);
     };
   }, [thinkingText, finalThinking]);
+
+  // Internal auto-scroll for the thought box
+  useEffect(() => {
+    if (thoughtBoxRef.current && expanded) {
+      thoughtBoxRef.current.scrollTop = thoughtBoxRef.current.scrollHeight;
+    }
+  }, [streamedText, expanded]);
 
   // Auto-collapse when generating starts
   useEffect(() => {
@@ -111,16 +113,17 @@ const ThinkingBlock = ({
             <span className="thinking-label">Thought for {thinkingElapsed || "a few"}s</span>
             <span className={`toggle-arrow ${expanded ? "expanded" : ""}`}>{'>'}</span>
           </div>
-          {expanded && (
-            <div className="thought-text" ref={thoughtBoxRef}>
-              {thinkingText.split(/\n+/).filter(Boolean).map((p, i) => (
-                <p key={i}>{p.trim()}</p>
-              ))}
-            </div>
-          )}
+          <div
+            ref={thoughtBoxRef}
+            className={`thought-text ${expanded ? "visible" : "hidden"}`}
+          >
+            {thinkingText.split(/\n+/).filter(Boolean).map((p, i) => (
+              <p key={i}>{p.trim()}</p>
+            ))}
+          </div>
         </div>
         {finalAnswer && (
-          <div className="message ai">
+          <div className="final-answer-text">
             {isLatest ? <Typewriter text={finalAnswer} /> : finalAnswer}
           </div>
         )}
@@ -132,7 +135,6 @@ const ThinkingBlock = ({
   if (isLive) {
     return (
       <div className="message ai thinking-msg">
-        {/* Status line */}
         <div className="thinking-header">
           <span className="thinking-label">
             {phase === "thinking" ? (
@@ -145,7 +147,6 @@ const ThinkingBlock = ({
               <>Thought for {elapsed}s</>
             )}
           </span>
-          {/* Arrow only shows once thinking text has arrived */}
           {hasThinkingText && (
             <span
               className={`toggle-arrow ${expanded ? "expanded" : ""}`}
@@ -154,14 +155,13 @@ const ThinkingBlock = ({
           )}
         </div>
 
-        {/* Thought process - always rendered, visibility toggled via CSS */}
-        {hasThinkingText && (
-          <div className={`thought-text ${expanded ? "visible" : "hidden"}`} ref={thoughtBoxRef}>
-            {streamedText}
-          </div>
-        )}
+        <div
+          ref={thoughtBoxRef}
+          className={`thought-text ${expanded ? "visible" : "hidden"}`}
+        >
+          {streamedText}
+        </div>
 
-        {/* Generating phase */}
         {phase === "generating" && (
           <div className="generating-label">
             Generating<span className="dot-anim"></span>
@@ -177,9 +177,7 @@ const ThinkingBlock = ({
 /* ── ChatBox ── */
 function ChatBox({ messages, thinkingState }: ChatBoxProps) {
   const [glow, setGlow] = useState(false);
-  const [showScrollBtn, setShowScrollBtn] = useState(false);
   const prevLength = useRef(messages.length);
-  const chatBoxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (messages.length > prevLength.current) {
@@ -192,68 +190,38 @@ function ChatBox({ messages, thinkingState }: ChatBoxProps) {
 
   const isLive = thinkingState && thinkingState.phase !== "idle";
 
-  const handleScroll = () => {
-    if (!chatBoxRef.current) return;
-    const { scrollTop, scrollHeight, clientHeight } = chatBoxRef.current;
-    // Show button if we are scrolled up more than 50px from the bottom
-    const isScrolledUp = scrollHeight - scrollTop - clientHeight > 50;
-    setShowScrollBtn(isScrolledUp);
-  };
-
-  const scrollToBottom = () => {
-    if (chatBoxRef.current) {
-      chatBoxRef.current.scrollTo({
-        top: chatBoxRef.current.scrollHeight,
-        behavior: "smooth",
-      });
-    }
-  };
-
   return (
-    <>
-      <div
-        id="chat-box"
-        className={glow ? "glow-once" : ""}
-        ref={chatBoxRef}
-        onScroll={handleScroll}
-      >
-        {messages.map((msg, index) => {
-          const isLatest = index === messages.length - 1;
+    <div id="chat-box" className={glow ? "glow-once" : ""}>
+      {messages.map((msg, index) => {
+        const isLatest = index === messages.length - 1;
 
-          if (msg.type === "ai" && msg.thinking) {
-            return (
-              <ThinkingBlock
-                key={index}
-                finalThinking={msg.thinking}
-                finalAnswer={msg.text}
-                isLatest={isLatest && !isLive}
-                thinkingElapsed={msg.thinkingElapsed}
-              />
-            );
-          }
-
+        if (msg.type === "ai" && msg.thinking) {
           return (
-            <div key={index} className={`message ${msg.type}`}>
-              {msg.type === "ai" && isLatest && !isLive ? (
-                <Typewriter text={msg.text} />
-              ) : (
-                msg.text
-              )}
-            </div>
+            <ThinkingBlock
+              key={index}
+              finalThinking={msg.thinking}
+              finalAnswer={msg.text}
+              isLatest={isLatest && !isLive}
+              thinkingElapsed={msg.thinkingElapsed}
+            />
           );
-        })}
+        }
 
-        {isLive && (
-          <ThinkingBlock thinkingState={thinkingState} isLatest={true} />
-        )}
-      </div>
+        return (
+          <div key={index} className={`message ${msg.type}`}>
+            {msg.type === "ai" && isLatest && !isLive ? (
+              <Typewriter text={msg.text} />
+            ) : (
+              msg.text
+            )}
+          </div>
+        );
+      })}
 
-      {showScrollBtn && (
-        <button className="scroll-to-bottom-btn" onClick={scrollToBottom}>
-          <span className="arrow-down">↓</span>
-        </button>
+      {isLive && (
+        <ThinkingBlock thinkingState={thinkingState} isLatest={true} />
       )}
-    </>
+    </div>
   );
 }
 
