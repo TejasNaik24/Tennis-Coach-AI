@@ -5,6 +5,7 @@ type Message = {
   type: "user" | "ai";
   text: string;
   thinking?: string;
+  thinkingElapsed?: number;
 };
 
 interface ChatBoxProps {
@@ -41,14 +42,17 @@ const ThinkingBlock = ({
   finalThinking,
   finalAnswer,
   isLatest,
+  thinkingElapsed,
 }: {
   thinkingState?: { phase: string; elapsed: number; thinking: string };
   finalThinking?: string;
   finalAnswer?: string;
   isLatest: boolean;
+  thinkingElapsed?: number;
 }) => {
   const [expanded, setExpanded] = useState(false);
   const prevPhase = useRef<string>("idle");
+  const prevThinkingLen = useRef(0);
   const thinkingText = thinkingState?.thinking || finalThinking || "";
 
   // Auto-collapse when generating starts
@@ -63,6 +67,19 @@ const ThinkingBlock = ({
     prevPhase.current = thinkingState.phase;
   }, [thinkingState?.phase]);
 
+  // Auto-expand when thinking text first arrives
+  useEffect(() => {
+    if (
+      thinkingState &&
+      thinkingState.phase === "thinking" &&
+      thinkingText.length > 0 &&
+      prevThinkingLen.current === 0
+    ) {
+      setExpanded(true);
+    }
+    prevThinkingLen.current = thinkingText.length;
+  }, [thinkingText, thinkingState?.phase]);
+
   const isLive = thinkingState && thinkingState.phase !== "idle";
   const phase = thinkingState?.phase || "idle";
   const elapsed = thinkingState?.elapsed || 0;
@@ -72,7 +89,7 @@ const ThinkingBlock = ({
     return (
       <div className="message ai">
         <div className="thinking-header" onClick={() => setExpanded(!expanded)}>
-          <span className="thinking-label">Thought for {elapsed || "a few"}s</span>
+          <span className="thinking-label">Thought for {thinkingElapsed || "a few"}s</span>
           <span className={`toggle-arrow ${expanded ? "expanded" : ""}`}>▶</span>
         </div>
         {expanded && (
@@ -167,6 +184,7 @@ function ChatBox({ messages, thinkingState }: ChatBoxProps) {
               finalThinking={msg.thinking}
               finalAnswer={msg.text}
               isLatest={isLatest && !isLive}
+              thinkingElapsed={msg.thinkingElapsed}
             />
           );
         }

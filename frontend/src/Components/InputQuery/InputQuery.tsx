@@ -168,20 +168,38 @@ function InputQuery(): React.ReactElement | null {
 
   const handleApiResponse = useCallback(
     (data: { thinking: string; reply: string }) => {
-      stopThinkingTimer();
+      const thinkingText = data.thinking || "";
 
-      // Show thinking text, transition to generating
+      // Step 1: Keep thinking phase, but feed in the thinking text so it streams
       setThinkingState((prev) => ({
         ...prev,
-        phase: "generating",
-        thinking: data.thinking || "",
+        phase: "thinking",
+        thinking: thinkingText,
       }));
 
-      // After a short "generating" delay, add the final message
+      // Step 2: After enough time for text to stream in, stop timer & go to generating
+      const streamDuration = Math.max(thinkingText.length * 10, 1000);
       setTimeout(() => {
-        setThinkingState({ phase: "idle", elapsed: 0, thinking: "" });
-        addMessage("ai", data.reply, data.thinking);
-      }, 1500);
+        stopThinkingTimer();
+
+        // Capture elapsed before changing phase
+        setThinkingState((prev) => {
+          const capturedElapsed = prev.elapsed;
+
+          // Set to generating phase
+          setTimeout(() => {
+            setThinkingState((p) => ({ ...p, phase: "generating" }));
+
+            // Step 3: After generating delay, add the final message
+            setTimeout(() => {
+              setThinkingState({ phase: "idle", elapsed: 0, thinking: "" });
+              addMessage("ai", data.reply, data.thinking, capturedElapsed);
+            }, 1500);
+          }, 0);
+
+          return prev;
+        });
+      }, streamDuration);
     },
     [stopThinkingTimer]
   );
@@ -248,8 +266,8 @@ function InputQuery(): React.ReactElement | null {
       .catch(handleApiError);
   };
 
-  const addMessage = (type: "user" | "ai", text: string, thinking?: string) => {
-    setMessages((prev) => [...prev, { type, text, thinking }]);
+  const addMessage = (type: "user" | "ai", text: string, thinking?: string, thinkingElapsed?: number) => {
+    setMessages((prev) => [...prev, { type, text, thinking, thinkingElapsed }]);
 
     if (type === "ai" && voiceMode) {
       const utterance = new SpeechSynthesisUtterance(text);
