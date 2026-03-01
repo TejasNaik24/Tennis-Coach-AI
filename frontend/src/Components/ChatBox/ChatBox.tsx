@@ -102,10 +102,10 @@ const ThinkingBlock = ({
   // ── Completed message ──
   if (!isLive && finalThinking) {
     return (
-      <div className="message ai">
+      <div className="message ai thinking-msg">
         <div className="thinking-header" onClick={() => setExpanded(!expanded)}>
           <span className="thinking-label">Thought for {thinkingElapsed || "a few"}s</span>
-          <span className={`toggle-arrow ${expanded ? "expanded" : ""}`}>▶</span>
+          <span className={`toggle-arrow ${expanded ? "expanded" : ""}`}>{'>'}</span>
         </div>
         {expanded && (
           <div className="thought-text">
@@ -126,7 +126,7 @@ const ThinkingBlock = ({
   // ── Live thinking / generating ──
   if (isLive) {
     return (
-      <div className="message ai">
+      <div className="message ai thinking-msg">
         {/* Status line */}
         <div className="thinking-header">
           <span className="thinking-label">
@@ -145,7 +145,7 @@ const ThinkingBlock = ({
             <span
               className={`toggle-arrow ${expanded ? "expanded" : ""}`}
               onClick={() => setExpanded(!expanded)}
-            >▶</span>
+            >{'>'}</span>
           )}
         </div>
 

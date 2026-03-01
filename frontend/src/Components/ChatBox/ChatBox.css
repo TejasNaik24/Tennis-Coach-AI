@@ -51,11 +51,18 @@
 }
 
 /* ===== THINKING HEADER: inline status + arrow ===== */
+.message.thinking-msg {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  padding: 0.4rem 0;
+}
+
 .thinking-header {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.3rem;
+  gap: 0;
 }
 
 .thinking-label {
@@ -64,7 +71,13 @@
   font-style: italic;
 }
 
-/* Animated dots (inline, right after text) */
+/* Animated dots (inline, fixed width so arrow doesn't shift) */
+.dot-anim {
+  display: inline-block;
+  width: 1.2em;
+  text-align: left;
+}
+
 .dot-anim::after {
   content: '.';
   animation: dot-cycle 1.5s infinite;
@@ -86,12 +99,13 @@
 
 /* Toggle arrow */
 .toggle-arrow {
-  font-size: 0.7rem;
+  font-size: 0.82rem;
   color: rgba(255, 255, 255, 0.45);
   cursor: pointer;
   transition: transform 0.25s ease, color 0.2s;
   display: inline-block;
   user-select: none;
+  margin-left: 0.4rem;
 }
 
 .toggle-arrow:hover {
