@@ -194,7 +194,7 @@ function InputQuery(): React.ReactElement | null {
             setTimeout(() => {
               setThinkingState({ phase: "idle", elapsed: 0, thinking: "" });
               addMessage("ai", data.reply, data.thinking, capturedElapsed);
-            }, 1500);
+            }, 3000);
           }, 0);
 
           return prev;
