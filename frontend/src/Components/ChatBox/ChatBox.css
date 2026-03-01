@@ -89,15 +89,22 @@
 }
 
 @keyframes dot-cycle {
-  0% {
+
+  0%,
+  20% {
+    content: '';
+  }
+
+  40% {
     content: '.';
   }
 
-  33% {
+  60% {
     content: '..';
   }
 
-  66% {
+  80%,
+  100% {
     content: '...';
   }
 }
@@ -154,13 +161,7 @@
   border-radius: 4px;
 }
 
-/* Generating label */
-.generating-label {
-  margin-top: 0.5rem;
-  font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.6);
-  font-style: italic;
-}
+
 
 /* Final answer text (Restored bubble styling) */
 .final-answer-text {

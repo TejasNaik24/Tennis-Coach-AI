@@ -74,7 +74,7 @@ const ThinkingBlock = ({
       } else {
         if (streamRef.current) clearInterval(streamRef.current);
       }
-    }, 250); // Pulse in a chunk every 250ms
+    }, 600); // Pulse in a chunk every 600ms (slower for better readability)
 
     return () => {
       if (streamRef.current) clearInterval(streamRef.current);
@@ -166,12 +166,6 @@ const ThinkingBlock = ({
         >
           {streamedText}
         </div>
-
-        {phase === "generating" && (
-          <div className="generating-label">
-            Generating<span className="dot-anim"></span>
-          </div>
-        )}
       </div>
     );
   }

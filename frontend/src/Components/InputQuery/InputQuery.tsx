@@ -232,20 +232,12 @@ function InputQuery(): React.ReactElement | null {
       setTimeout(() => {
         stopThinkingTimer();
 
-        // Capture elapsed and move to generating phase
+        // Capture elapsed and move directly to idle + addMessage
         setThinkingState((prev) => {
           const capturedElapsed = prev.elapsed;
 
-          // Switch to generating
-          setTimeout(() => {
-            setThinkingState((p) => ({ ...p, phase: "generating" }));
-
-            // Step 3: Wait 3 seconds in generating phase then finalize
-            setTimeout(() => {
-              setThinkingState({ phase: "idle", elapsed: 0, thinking: "" });
-              addMessage("ai", data.reply, data.thinking, capturedElapsed);
-            }, 3000);
-          }, 0);
+          setThinkingState({ phase: "idle", elapsed: 0, thinking: "" });
+          addMessage("ai", data.reply, data.thinking, capturedElapsed);
 
           return prev;
         });
