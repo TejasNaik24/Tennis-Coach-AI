@@ -85,7 +85,7 @@
 
 .dot-anim::after {
   content: '.';
-  animation: dot-cycle 1.5s infinite;
+  animation: dot-cycle 2s infinite;
 }
 
 @keyframes dot-cycle {
