@@ -60,106 +60,23 @@
   opacity: 0.9;
 }
 
-@keyframes pulse-dots {
-  0% { opacity: 0.2; }
-  50% { opacity: 1; }
-  100% { opacity: 0.2; }
+.message.thinking::after {
+  content: '.';
+  animation: thinking-dots 1.5s infinite;
 }
 
-.pulsing-dots::after {
-  content: "...";
-  display: inline-block;
-  animation: pulse-dots 1.5s infinite;
-  width: 1em;
-  text-align: left;
-}
+@keyframes thinking-dots {
+  0% {
+    content: '.';
+  }
 
-/* Message with accent for reasoning */
-.message.ai.reasoning-block {
-  border-left: 4px solid #6366f1; /* indicator for thinking */
-  background: rgba(255, 255, 255, 0.05);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-width: 85%;
-}
+  33% {
+    content: '..';
+  }
 
-.thinking-status {
-  font-size: 0.8rem;
-  font-style: italic;
-  color: #94a3b8;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.thinking-timer {
-  font-weight: 500;
-  color: #cbd5e1;
-}
-
-.thought-collapsible {
-  margin-top: 4px;
-}
-
-.thought-header {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  color: #94a3b8;
-  user-select: none;
-}
-
-.thought-header:hover {
-  color: #cbd5e1;
-}
-
-.thought-header .arrow {
-  transition: transform 0.2s ease;
-  font-size: 0.7rem;
-}
-
-.thought-header.open .arrow {
-  transform: rotate(90deg);
-}
-
-.thought-content {
-  font-size: 0.85rem;
-  color: #94a3b8;
-  padding: 8px;
-  border-left: 1px solid rgba(255, 255, 255, 0.1);
-  margin-left: 6px;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 4px;
-  margin-top: 4px;
-  line-height: 1.4;
-  white-space: pre-wrap;
-}
-
-.generating-status {
-  font-size: 0.8rem;
-  font-style: italic;
-  color: #6366f1;
-  margin-top: 4px;
-}
-
-.thought-summary-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(99, 102, 241, 0.1);
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  color: #818cf8;
-  cursor: pointer;
-  border: 1px solid rgba(99, 102, 241, 0.2);
-}
-
-.thought-summary-badge:hover {
-  background: rgba(99, 102, 241, 0.2);
+  66% {
+    content: '...';
+  }
 }
 
 @keyframes single-glow {

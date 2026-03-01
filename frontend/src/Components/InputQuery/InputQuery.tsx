@@ -5,13 +5,6 @@ import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
 
-interface Message {
-  type: "user" | "ai";
-  text: string;
-  thought?: string;
-  isGenerating?: boolean;
-}
-
 function InputQuery(): React.ReactElement | null {
   const {
     transcript,
@@ -30,7 +23,9 @@ function InputQuery(): React.ReactElement | null {
 
   const [text, setText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<
+    { type: "user" | "ai"; text: string }[]
+  >([]);
   const [voiceMode, setVoiceMode] = useState(false);
   const [isMaxed, setIsMaxed] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
@@ -187,18 +182,7 @@ function InputQuery(): React.ReactElement | null {
     }
   }, [transcript]);
 
-  const updateLastMessage = (text: string, thought?: string, isGenerating?: boolean) => {
-    setMessages((prev) => {
-      const newMessages = [...prev];
-      if (newMessages.length > 0) {
-        const last = newMessages[newMessages.length - 1];
-        newMessages[newMessages.length - 1] = { ...last, text, thought, isGenerating };
-      }
-      return newMessages;
-    });
-  };
-
-  const sendMessage = async () => {
+  const sendMessage = () => {
     const message = text.trim();
     if (!message) return;
 
@@ -212,80 +196,52 @@ function InputQuery(): React.ReactElement | null {
     }
     resetTranscript();
 
-    // Add initial AI message shell
-    addMessage("ai", "");
     setIsThinking(true);
-
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/ask`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
+    fetch(`${import.meta.env.VITE_API_URL}/ask`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message }),
+    })
+      .then((response: Response) => response.json())
+      .then((data: { reply: string }) => {
+        setIsThinking(false);
+        addMessage("ai", data.reply);
+        // update UI here
+      })
+      .catch((error: any) => {
+        console.error("Error:", error);
+        // show error UI
+        setIsThinking(false);
+        addMessage("ai", "Sorry, something went wrong.");
       });
-
-      if (!response.ok) throw new Error("Failed to connect to AI");
-
-      const reader = response.body?.getReader();
-      if (!reader) throw new Error("No reader available");
-
-      const decoder = new TextDecoder();
-      let fullText = "";
-      let currentThought = "";
-      let currentAnswer = "";
-      let hasStartedAnswer = false;
-
-      setIsThinking(false); // Stop showing the generic "Thinking" bubble once streaming starts
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value, { stream: true });
-        fullText += chunk;
-
-        // Simple tag parser
-        const thoughtMatch = fullText.match(/<thought>([\s\S]*?)<\/thought>/);
-        const thoughtStartMatch = fullText.match(/<thought>([\s\S]*)/);
-
-        if (thoughtMatch) {
-          currentThought = thoughtMatch[1];
-          const parts = fullText.split("</thought>");
-          currentAnswer = parts.length > 1 ? parts[1].trim() : "";
-          hasStartedAnswer = currentAnswer.length > 0;
-        } else if (thoughtStartMatch) {
-          currentThought = thoughtStartMatch[1];
-        } else {
-          currentAnswer = fullText;
-        }
-
-        updateLastMessage(currentAnswer, currentThought, !hasStartedAnswer);
-      }
-
-      // Final update to clear generating state
-      updateLastMessage(currentAnswer, currentThought, false);
-
-      // Speak if voice mode is on
-      if (voiceMode && currentAnswer) {
-        const utterance = new SpeechSynthesisUtterance(currentAnswer);
-        utterance.onend = () => {
-          try {
-            SpeechRecognition.startListening({ continuous: true });
-          } catch (err) {
-            console.error("Mic error on TTS end:", err);
-          }
-        };
-        window.speechSynthesis.speak(utterance);
-      }
-
-    } catch (error) {
-      console.error("Error:", error);
-      setIsThinking(false);
-      updateLastMessage("Sorry, something went wrong.", "", false);
-    }
   };
 
-  const addMessage = (type: "user" | "ai", text: string, thought?: string, isGenerating?: boolean) => {
-    setMessages((prev) => [...prev, { type, text, thought, isGenerating }]);
+  const addMessage = (type: "user" | "ai", text: string) => {
+    setMessages((prev) => [...prev, { type, text }]);
+
+    if (type === "ai" && voiceMode) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-US";
+
+      // 🛑 Stop mic BEFORE speech starts (prevents AI echo pickup)
+      try {
+        SpeechRecognition.stopListening();
+      } catch (err) {
+        console.error("Mic error before TTS:", err);
+      }
+
+      // 🔊 Resume mic AFTER speech ends
+      utterance.onend = () => {
+        try {
+          SpeechRecognition.startListening({ continuous: true });
+        } catch (err) {
+          console.error("Mic error on TTS end:", err);
+        }
+      };
+
+      // 🗣️ Start speaking
+      window.speechSynthesis.speak(utterance);
+    }
   };
 
   return (
