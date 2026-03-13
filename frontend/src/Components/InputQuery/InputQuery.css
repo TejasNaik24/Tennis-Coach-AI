@@ -74,23 +74,14 @@
     border-color 0.3s ease;
 }
 
-#stop-button {
-  background: white;
-  border-color: white;
-  color: black;
-}
-
-#stop-button:hover {
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
-}
-
-.stop-icon {
+#stop-button .stop-icon {
   width: 12px;
   height: 12px;
-  background: black;
+  background: white;
   border-radius: 2px;
 }
+
+
 
 #dictate {
   position: relative;
