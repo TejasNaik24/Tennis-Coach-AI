@@ -258,15 +258,16 @@ function InputQuery(): React.ReactElement | null {
         apiTimeoutRef.current = null;
         stopThinkingTimer();
 
-        // Capture elapsed and move directly to idle + addMessage
+        // Use a functional update to get the latest elapsed and transition to idle in one step
         setThinkingState((prev: any) => {
-          if (prev.phase === "idle") return prev; // If cleared, don't proceed
-          const capturedElapsed = prev.elapsed;
+          if (prev.phase === "idle") return prev; // If already cleared, do nothing
           
-          setThinkingState({ phase: "idle", elapsed: 0, thinking: "" });
-          addMessage("ai", data.reply, data.thinking, capturedElapsed);
-
-          return prev;
+          const finalElapsed = prev.elapsed;
+          // Add the final AI message
+          addMessage("ai", data.reply, data.thinking, finalElapsed);
+          
+          // Return the new 'idle' state
+          return { phase: "idle", elapsed: 0, thinking: "" };
         });
       }, streamDuration);
     },
