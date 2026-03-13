@@ -57,8 +57,9 @@
   box-shadow: 0 8px 30px rgba(255, 255, 255, 0.5);
 }
 
-/* Send button and voice mode style with clear glass look */
+/* Send button, stop button and voice mode style with clear glass look */
 #send-button,
+#stop-button,
 #voice-mode {
   position: absolute;
   display: flex;
@@ -71,6 +72,24 @@
   font-size: 1.5rem;
   transition: background-color 0.3s ease, box-shadow 0.3s ease,
     border-color 0.3s ease;
+}
+
+#stop-button {
+  background: white;
+  border-color: white;
+  color: black;
+}
+
+#stop-button:hover {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+}
+
+.stop-icon {
+  width: 12px;
+  height: 12px;
+  background: black;
+  border-radius: 2px;
 }
 
 #dictate {
@@ -211,6 +230,7 @@
   }
 
   #send-button,
+  #stop-button,
   #voice-mode {
     transform: translateX(-4px);
   }

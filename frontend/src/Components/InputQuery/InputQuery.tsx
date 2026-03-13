@@ -173,6 +173,24 @@ function InputQuery(): React.ReactElement | null {
     }
   }, []);
 
+  const stopGeneration = useCallback(() => {
+    // 1. Abort API request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+
+    // 2. Clear state-transition timeout
+    if (apiTimeoutRef.current) {
+      clearTimeout(apiTimeoutRef.current);
+      apiTimeoutRef.current = null;
+    }
+
+    // 3. Reset state
+    stopThinkingTimer();
+    setThinkingState({ phase: "idle", elapsed: 0, thinking: "" });
+  }, [stopThinkingTimer]);
+
   // Manual scroll to bottom handler
   const scrollToBottom = useCallback(() => {
     const chatBox = document.getElementById("chat-box");
@@ -235,7 +253,9 @@ function InputQuery(): React.ReactElement | null {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      sendMessage();
+      if (thinkingState.phase === "idle") {
+        sendMessage();
+      }
     }
   };
 
@@ -377,37 +397,45 @@ function InputQuery(): React.ReactElement | null {
               onKeyDown={handleKeyDown}
               rows={1}
               style={{ overflowY: isMaxed ? "auto" : "hidden" }}
-              placeholder={!listening ? "Ask me anything..." : "Listening..."}
-              disabled={listening}
+              placeholder={thinkingState.phase !== "idle" ? "AI is thinking..." : (!listening ? "Ask me anything..." : "Listening...")}
+              disabled={listening || thinkingState.phase !== "idle"}
               className="scroll-class"
             />
           )}
-          {!text && !voiceMode && (
-            <button
-              id="voice-mode"
-              title="Use voice mode"
-              onClick={voiceModeOn}
-            >
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="6" y1="8" x2="6" y2="16" />
-                <line x1="12" y1="4" x2="12" y2="20" />
-                <line x1="18" y1="8" x2="18" y2="16" />
-              </svg>
+          {thinkingState.phase !== "idle" ? (
+            <button id="stop-button" title="Stop generating" onClick={stopGeneration}>
+              <div className="stop-icon"></div>
             </button>
-          )}
-          {text && !voiceMode && (
-            <button id="send-button" title="Send" onClick={sendMessage}>
-              ↑
-            </button>
+          ) : (
+            <>
+              {!text && !voiceMode && (
+                <button
+                  id="voice-mode"
+                  title="Use voice mode"
+                  onClick={voiceModeOn}
+                >
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="6" y1="8" x2="6" y2="16" />
+                    <line x1="12" y1="4" x2="12" y2="20" />
+                    <line x1="18" y1="8" x2="18" y2="16" />
+                  </svg>
+                </button>
+              )}
+              {text && !voiceMode && (
+                <button id="send-button" title="Send" onClick={sendMessage}>
+                  ↑
+                </button>
+              )}
+            </>
           )}
         </div>
         {!voiceMode && (
