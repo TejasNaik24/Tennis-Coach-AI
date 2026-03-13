@@ -34,6 +34,8 @@ function InputQuery(): React.ReactElement | null {
   }>({ phase: "idle", elapsed: 0, thinking: "" });
   const [showScrollButton, setShowScrollButton] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const apiTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const adjustHeight = () => {
     if (textareaRef.current) {
@@ -80,6 +82,23 @@ function InputQuery(): React.ReactElement | null {
   };
 
   const clearMessages = () => {
+    // 1. Abort any in-flight requests
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+
+    // 2. Clear any pending state-transition timeouts
+    if (apiTimeoutRef.current) {
+      clearTimeout(apiTimeoutRef.current);
+      apiTimeoutRef.current = null;
+    }
+
+    // 3. Stop the thinking timer and reset state
+    stopThinkingTimer();
+    setThinkingState({ phase: "idle", elapsed: 0, thinking: "" });
+
+    // 4. Wipe messages
     setMessages([]);
     if (voiceMode) {
       window.speechSynthesis.cancel();
@@ -129,6 +148,10 @@ function InputQuery(): React.ReactElement | null {
   // Run once on mount to prevent "jump"
   useEffect(() => {
     adjustHeight();
+    return () => {
+      if (abortControllerRef.current) abortControllerRef.current.abort();
+      if (apiTimeoutRef.current) clearTimeout(apiTimeoutRef.current);
+    };
   }, []);
 
   const startThinkingTimer = useCallback(() => {
@@ -221,21 +244,25 @@ function InputQuery(): React.ReactElement | null {
       const thinkingText = data.thinking || "";
 
       // Step 1: Keep thinking phase, but feed in the thinking text so it streams
-      setThinkingState((prev) => ({
+      setThinkingState((prev: any) => ({
         ...prev,
         phase: "thinking",
         thinking: thinkingText,
       }));
 
-      // Step 2: After enough time for text to stream in, stop timer & go to generating
+      // Step 2: After enough time for text to stream in, stop timer & go to idle
       const streamDuration = Math.max(thinkingText.length * 10, 1000);
-      setTimeout(() => {
+      
+      if (apiTimeoutRef.current) clearTimeout(apiTimeoutRef.current);
+      apiTimeoutRef.current = setTimeout(() => {
+        apiTimeoutRef.current = null;
         stopThinkingTimer();
 
         // Capture elapsed and move directly to idle + addMessage
-        setThinkingState((prev) => {
+        setThinkingState((prev: any) => {
+          if (prev.phase === "idle") return prev; // If cleared, don't proceed
           const capturedElapsed = prev.elapsed;
-
+          
           setThinkingState({ phase: "idle", elapsed: 0, thinking: "" });
           addMessage("ai", data.reply, data.thinking, capturedElapsed);
 
@@ -248,25 +275,31 @@ function InputQuery(): React.ReactElement | null {
 
   const handleApiError = useCallback(
     (error: any) => {
+      if (error.name === "AbortError") return; // Ignore expected aborts
       console.error("Error:", error);
       stopThinkingTimer();
       setThinkingState({ phase: "idle", elapsed: 0, thinking: "" });
       addMessage("ai", "Sorry, something went wrong.");
     },
-    [stopThinkingTimer]
+    [stopThinkingTimer, addMessage]
   );
 
   useEffect(() => {
     if (voiceMode && transcript.trim()) {
       const timeout = setTimeout(() => {
-        addMessage("user", transcript.trim());
+        const textToQuery = transcript.trim();
+        addMessage("user", textToQuery);
         resetTranscript();
+
+        if (abortControllerRef.current) abortControllerRef.current.abort();
+        abortControllerRef.current = new AbortController();
 
         startThinkingTimer();
         fetch(`${import.meta.env.VITE_API_URL}/ask`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: transcript.trim() }),
+          body: JSON.stringify({ message: textToQuery }),
+          signal: abortControllerRef.current.signal,
         })
           .then((response) => response.json())
           .then(handleApiResponse)
@@ -297,11 +330,15 @@ function InputQuery(): React.ReactElement | null {
     }
     resetTranscript();
 
+    if (abortControllerRef.current) abortControllerRef.current.abort();
+    abortControllerRef.current = new AbortController();
+
     startThinkingTimer();
     fetch(`${import.meta.env.VITE_API_URL}/ask`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message }),
+      signal: abortControllerRef.current.signal,
     })
       .then((response: Response) => response.json())
       .then(handleApiResponse)
