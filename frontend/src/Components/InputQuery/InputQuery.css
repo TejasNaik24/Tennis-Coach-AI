@@ -20,6 +20,7 @@
 #clear-button,
 #send-button,
 #voice-mode,
+#stop-button,
 #dictate,
 #exit {
   font-size: 1.5rem;
@@ -78,10 +79,10 @@
   width: 14px;
   height: 14px;
   background: white;
-  border-radius: 2px;
-  /* Use the existing liquid glass aesthetic for the square */
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.9);
+  border-radius: 3px;
+  /* Matching the white glass elements */
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.95);
 }
 
 #dictate {
@@ -213,6 +214,7 @@
 
   #send-button,
   #voice-mode,
+  #stop-button,
   #dictate,
   #mute-button,
   #exit {
