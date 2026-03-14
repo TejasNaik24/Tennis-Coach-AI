@@ -46,8 +46,8 @@ const Typewriter = ({
     return () => clearInterval(timer);
   }, [text, speed, stopped, onProgress]);
 
-  // If stopped, we just show what was already displayed (or the full text if it finished before stop)
-  return <>{displayed || text}</>;
+  // No fallback to full text: always start from empty to prevent flashes
+  return <>{displayed}</>;
 };
 
 /* ── ThinkingBlock ── */
@@ -192,7 +192,7 @@ const ThinkingBlock = ({
             ref={thoughtBoxRef}
             className={`thought-text ${expanded || isTyping ? "visible" : "hidden"}`}
           >
-            {streamedText || thinkingText}
+            {streamedText}
           </div>
         </div>
         
