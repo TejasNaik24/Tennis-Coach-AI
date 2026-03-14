@@ -16,9 +16,20 @@ interface ChatBoxProps {
     elapsed: number;
     thinking: string;
   };
+  onProgress?: (text: string) => void;
 }
 
-const Typewriter = ({ text, speed = 15, stopped = false }: { text: string; speed?: number; stopped?: boolean }) => {
+const Typewriter = ({ 
+  text, 
+  speed = 15, 
+  stopped = false,
+  onProgress 
+}: { 
+  text: string; 
+  speed?: number; 
+  stopped?: boolean;
+  onProgress?: (text: string) => void;
+}) => {
   const [displayed, setDisplayed] = useState("");
 
   useEffect(() => {
@@ -26,12 +37,14 @@ const Typewriter = ({ text, speed = 15, stopped = false }: { text: string; speed
     
     let i = 0;
     const timer = setInterval(() => {
-      setDisplayed(text.slice(0, i + 1));
+      const nextText = text.slice(0, i + 1);
+      setDisplayed(nextText);
+      if (onProgress) onProgress(nextText);
       i++;
       if (i >= text.length) clearInterval(timer);
     }, speed);
     return () => clearInterval(timer);
-  }, [text, speed, stopped]);
+  }, [text, speed, stopped, onProgress]);
 
   // If stopped, we just show what was already displayed (or the full text if it finished before stop)
   return <>{displayed || text}</>;
@@ -45,6 +58,7 @@ const ThinkingBlock = ({
   isLatest,
   thinkingElapsed,
   stopped,
+  onProgress,
 }: {
   thinkingState?: { phase: string; elapsed: number; thinking: string };
   finalThinking?: string;
@@ -52,6 +66,7 @@ const ThinkingBlock = ({
   isLatest: boolean;
   thinkingElapsed?: number;
   stopped?: boolean;
+  onProgress?: (text: string) => void;
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [streamedText, setStreamedText] = useState("");
@@ -136,7 +151,11 @@ const ThinkingBlock = ({
         )}
         {finalAnswer && (
           <div className="final-answer-text">
-            {isLatest ? <Typewriter text={finalAnswer} stopped={stopped} /> : finalAnswer}
+            {isLatest ? (
+              <Typewriter text={finalAnswer} stopped={stopped} onProgress={onProgress} />
+            ) : (
+              finalAnswer
+            )}
           </div>
         )}
       </>
@@ -179,7 +198,7 @@ const ThinkingBlock = ({
         
         {isTyping && finalAnswer && (
           <div className="final-answer-text">
-            <Typewriter text={finalAnswer} />
+            <Typewriter text={finalAnswer} onProgress={onProgress} />
           </div>
         )}
       </>
@@ -190,7 +209,7 @@ const ThinkingBlock = ({
 };
 
 /* ── ChatBox ── */
-function ChatBox({ messages, thinkingState }: ChatBoxProps) {
+function ChatBox({ messages, thinkingState, onProgress }: ChatBoxProps) {
   const [glow, setGlow] = useState(false);
   const prevLength = useRef(messages.length);
 
@@ -219,6 +238,7 @@ function ChatBox({ messages, thinkingState }: ChatBoxProps) {
               isLatest={isLatest && !isLive}
               thinkingElapsed={msg.thinkingElapsed}
               stopped={msg.stopped}
+              onProgress={isLatest ? onProgress : undefined}
             />
           );
         }
@@ -226,7 +246,7 @@ function ChatBox({ messages, thinkingState }: ChatBoxProps) {
         return (
           <div key={index} className={`message ${msg.type}`}>
             {msg.type === "ai" && isLatest && !isLive ? (
-              <Typewriter text={msg.text} />
+              <Typewriter text={msg.text} onProgress={onProgress} />
             ) : (
               msg.text
             )}
@@ -235,7 +255,7 @@ function ChatBox({ messages, thinkingState }: ChatBoxProps) {
       })}
 
       {isLive && (
-        <ThinkingBlock thinkingState={thinkingState} isLatest={true} />
+        <ThinkingBlock thinkingState={thinkingState} isLatest={true} onProgress={onProgress} />
       )}
     </div>
   );

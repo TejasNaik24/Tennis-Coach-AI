@@ -36,6 +36,7 @@ function InputQuery(): React.ReactElement | null {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const apiTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const typewriterProgressRef = useRef<string>("");
 
   const adjustHeight = () => {
     if (textareaRef.current) {
@@ -260,11 +261,18 @@ function InputQuery(): React.ReactElement | null {
       const currentElapsed = thinkingState.elapsed;
       addMessage("ai", "", currentThinking, currentElapsed);
     } else if (thinkingState.phase === "typing") {
+      // Capture the exact typewriter progress to freeze it permanently
+      const progress = typewriterProgressRef.current;
       setMessages((prev) => {
         const newMsgs = [...prev];
         for (let i = newMsgs.length - 1; i >= 0; i--) {
           if (newMsgs[i].type === "ai") {
-            newMsgs[i] = { ...newMsgs[i], stopped: true };
+            // Trim the text permanently to the progress level
+            newMsgs[i] = { 
+              ...newMsgs[i], 
+              text: progress || newMsgs[i].text, 
+              stopped: true 
+            };
             break;
           }
         }
@@ -275,11 +283,13 @@ function InputQuery(): React.ReactElement | null {
     // 4. Reset state to idle
     stopThinkingTimer();
     setThinkingState({ phase: "idle", elapsed: 0, thinking: "" });
+    typewriterProgressRef.current = ""; // Reset progress tracking
   }, [stopThinkingTimer, thinkingState, addMessage]);
 
   const handleApiResponse = useCallback(
     (data: { thinking: string; reply: string }) => {
       const thinkingText = data.thinking || "";
+      typewriterProgressRef.current = ""; // Clear for new reply
 
       // Step 1: Keep thinking phase, but feed in the thinking text so it streams
       setThinkingState((prev: any) => ({
@@ -315,7 +325,8 @@ function InputQuery(): React.ReactElement | null {
           apiTimeoutRef.current = setTimeout(() => {
             apiTimeoutRef.current = null;
             setThinkingState({ phase: "idle", elapsed: 0, thinking: "" });
-          }, typingDuration);
+            typewriterProgressRef.current = ""; // Success! track cleared
+          }, typingDuration + 500);
 
           return { 
             phase: "typing", 
@@ -402,7 +413,11 @@ function InputQuery(): React.ReactElement | null {
 
   return (
     <>
-      <ChatBox messages={messages} thinkingState={thinkingState} />
+      <ChatBox 
+        messages={messages} 
+        thinkingState={thinkingState} 
+        onProgress={(prog) => { typewriterProgressRef.current = prog; }}
+      />
 
       {/* Manual Scroll Button */}
       <div
