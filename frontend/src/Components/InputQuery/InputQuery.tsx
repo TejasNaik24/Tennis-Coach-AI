@@ -28,7 +28,7 @@ function InputQuery(): React.ReactElement | null {
   const [voiceMode, setVoiceMode] = useState(false);
   const [isMaxed, setIsMaxed] = useState(false);
   const [thinkingState, setThinkingState] = useState<{
-    phase: "thinking" | "generating" | "idle";
+    phase: "thinking" | "generating" | "idle" | "typing";
     elapsed: number;
     thinking: string;
   }>({ phase: "idle", elapsed: 0, thinking: "" });
@@ -254,10 +254,28 @@ function InputQuery(): React.ReactElement | null {
       apiTimeoutRef.current = null;
     }
 
-    // 3. Stop the thinking timer and reset state
+    // 3. Stop logic based on phase
+    if (thinkingState.phase === "thinking") {
+      const currentThinking = thinkingState.thinking;
+      const currentElapsed = thinkingState.elapsed;
+      addMessage("ai", "", currentThinking, currentElapsed);
+    } else if (thinkingState.phase === "typing") {
+      setMessages((prev) => {
+        const newMsgs = [...prev];
+        for (let i = newMsgs.length - 1; i >= 0; i--) {
+          if (newMsgs[i].type === "ai") {
+            newMsgs[i] = { ...newMsgs[i], stopped: true };
+            break;
+          }
+        }
+        return newMsgs;
+      });
+    }
+
+    // 4. Reset state to idle
     stopThinkingTimer();
     setThinkingState({ phase: "idle", elapsed: 0, thinking: "" });
-  }, [stopThinkingTimer]);
+  }, [stopThinkingTimer, thinkingState, addMessage]);
 
   const handleApiResponse = useCallback(
     (data: { thinking: string; reply: string }) => {
@@ -278,16 +296,32 @@ function InputQuery(): React.ReactElement | null {
         apiTimeoutRef.current = null;
         stopThinkingTimer();
 
-        // Use a functional update to get the latest elapsed and transition to idle in one step
         setThinkingState((prev: any) => {
-          if (prev.phase === "idle") return prev; // If already cleared, do nothing
-          
+          if (prev.phase === "idle") return prev;
           const finalElapsed = prev.elapsed;
-          // Add the final AI message
-          addMessage("ai", data.reply, data.thinking, finalElapsed);
           
-          // Return the new 'idle' state
-          return { phase: "idle", elapsed: 0, thinking: "" };
+          // Step 3: Transition to 'typing' phase
+          setThinkingState({ 
+            phase: "typing", 
+            elapsed: finalElapsed, 
+            thinking: thinkingText 
+          });
+
+          // Add the message (Typewriter will start in ChatBox because phase is 'typing')
+          addMessage("ai", data.reply, data.thinking, finalElapsed);
+
+          // Step 4: After typing duration, go to idle
+          const typingDuration = data.reply.length * 15; // match typewriter speed
+          apiTimeoutRef.current = setTimeout(() => {
+            apiTimeoutRef.current = null;
+            setThinkingState({ phase: "idle", elapsed: 0, thinking: "" });
+          }, typingDuration);
+
+          return { 
+            phase: "typing", 
+            elapsed: finalElapsed, 
+            thinking: thinkingText 
+          };
         });
       }, streamDuration);
     },
@@ -366,8 +400,6 @@ function InputQuery(): React.ReactElement | null {
       .catch(handleApiError);
   };
 
-
-
   return (
     <>
       <ChatBox messages={messages} thinkingState={thinkingState} />
@@ -397,8 +429,8 @@ function InputQuery(): React.ReactElement | null {
               onKeyDown={handleKeyDown}
               rows={1}
               style={{ overflowY: isMaxed ? "auto" : "hidden" }}
-              placeholder={thinkingState.phase !== "idle" ? "Wait for response..." : !listening ? "Ask me anything..." : "Listening..."}
-              disabled={listening || thinkingState.phase !== "idle"}
+              placeholder={!listening ? "Ask me anything..." : "Listening..."}
+              disabled={listening}
               className="scroll-class"
             />
           )}

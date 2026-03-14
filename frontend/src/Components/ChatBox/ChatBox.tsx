@@ -6,22 +6,24 @@ type Message = {
   text: string;
   thinking?: string;
   thinkingElapsed?: number;
+  stopped?: boolean;
 };
 
 interface ChatBoxProps {
   messages: Message[];
   thinkingState?: {
-    phase: "thinking" | "generating" | "idle";
+    phase: "thinking" | "generating" | "idle" | "typing";
     elapsed: number;
     thinking: string;
   };
 }
 
-/* ── Typewriter: streams text character-by-character ── */
-const Typewriter = ({ text, speed = 15 }: { text: string; speed?: number }) => {
+const Typewriter = ({ text, speed = 15, stopped = false }: { text: string; speed?: number; stopped?: boolean }) => {
   const [displayed, setDisplayed] = useState("");
 
   useEffect(() => {
+    if (stopped) return; // Freeze if stopped
+    
     let i = 0;
     const timer = setInterval(() => {
       setDisplayed(text.slice(0, i + 1));
@@ -29,9 +31,10 @@ const Typewriter = ({ text, speed = 15 }: { text: string; speed?: number }) => {
       if (i >= text.length) clearInterval(timer);
     }, speed);
     return () => clearInterval(timer);
-  }, [text, speed]);
+  }, [text, speed, stopped]);
 
-  return <>{displayed}</>;
+  // If stopped, we just show what was already displayed (or the full text if it finished before stop)
+  return <>{displayed || text}</>;
 };
 
 /* ── ThinkingBlock ── */
@@ -41,12 +44,14 @@ const ThinkingBlock = ({
   finalAnswer,
   isLatest,
   thinkingElapsed,
+  stopped,
 }: {
   thinkingState?: { phase: string; elapsed: number; thinking: string };
   finalThinking?: string;
   finalAnswer?: string;
   isLatest: boolean;
   thinkingElapsed?: number;
+  stopped?: boolean;
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [streamedText, setStreamedText] = useState("");
@@ -109,64 +114,75 @@ const ThinkingBlock = ({
   const phase = thinkingState?.phase || "idle";
   const elapsed = thinkingState?.elapsed || 0;
 
-  // ── Completed message ──
-  if (!isLive && finalThinking) {
+  // ── Completed message (not live anymore) ──
+  if (!isLive && (finalThinking || finalAnswer)) {
     return (
       <>
-        <div className="message ai thinking-msg">
-          <div className="thinking-header" onClick={() => setExpanded(!expanded)}>
-            <span className="thinking-label">Thought for {thinkingElapsed || "a few"}s</span>
-            <span className={`toggle-arrow ${expanded ? "expanded" : ""}`}>{'>'}</span>
+        {finalThinking && (
+          <div className="message ai thinking-msg">
+            <div className="thinking-header" onClick={() => setExpanded(!expanded)}>
+              <span className="thinking-label">Thought for {thinkingElapsed || "a few"}s</span>
+              <span className={`toggle-arrow ${expanded ? "expanded" : ""}`}>{'>'}</span>
+            </div>
+            <div
+              ref={thoughtBoxRef}
+              className={`thought-text ${expanded ? "visible" : "hidden"}`}
+            >
+              {finalThinking.split(/\n+/).filter(Boolean).map((p, i) => (
+                <p key={i}>{p.trim()}</p>
+              ))}
+            </div>
           </div>
-          <div
-            ref={thoughtBoxRef}
-            className={`thought-text ${expanded ? "visible" : "hidden"}`}
-          >
-            {thinkingText.split(/\n+/).filter(Boolean).map((p, i) => (
-              <p key={i}>{p.trim()}</p>
-            ))}
-          </div>
-        </div>
+        )}
         {finalAnswer && (
           <div className="final-answer-text">
-            {isLatest ? <Typewriter text={finalAnswer} /> : finalAnswer}
+            {isLatest ? <Typewriter text={finalAnswer} stopped={stopped} /> : finalAnswer}
           </div>
         )}
       </>
     );
   }
 
-  // ── Live thinking / generating ──
+  // ── Live thinking / generating / typing ──
   if (isLive) {
+    const isTyping = thinkingState?.phase === "typing";
     return (
-      <div className="message ai thinking-msg">
-        <div className="thinking-header">
-          <span className="thinking-label">
-            {phase === "thinking" ? (
-              !hasThinkingText ? (
-                <>Thinking<span className="dot-anim"></span></>
+      <>
+        <div className="message ai thinking-msg">
+          <div className="thinking-header">
+            <span className="thinking-label">
+              {phase === "thinking" ? (
+                !hasThinkingText ? (
+                  <>Thinking<span className="dot-anim"></span></>
+                ) : (
+                  <>Thinking for {elapsed}s<span className="dot-anim"></span></>
+                )
               ) : (
-                <>Thinking for {elapsed}s<span className="dot-anim"></span></>
-              )
-            ) : (
-              <>Thought for {elapsed}s</>
+                <>Thought for {elapsed}s</>
+              )}
+            </span>
+            {hasThinkingText && (
+              <span
+                className={`toggle-arrow ${expanded || isTyping ? "expanded" : ""}`}
+                onClick={() => setExpanded(!expanded)}
+              >{'>'}</span>
             )}
-          </span>
-          {hasThinkingText && (
-            <span
-              className={`toggle-arrow ${expanded ? "expanded" : ""}`}
-              onClick={() => setExpanded(!expanded)}
-            >{'>'}</span>
-          )}
-        </div>
+          </div>
 
-        <div
-          ref={thoughtBoxRef}
-          className={`thought-text ${expanded ? "visible" : "hidden"}`}
-        >
-          {streamedText}
+          <div
+            ref={thoughtBoxRef}
+            className={`thought-text ${expanded || isTyping ? "visible" : "hidden"}`}
+          >
+            {streamedText || thinkingText}
+          </div>
         </div>
-      </div>
+        
+        {isTyping && finalAnswer && (
+          <div className="final-answer-text">
+            <Typewriter text={finalAnswer} />
+          </div>
+        )}
+      </>
     );
   }
 
@@ -202,6 +218,7 @@ function ChatBox({ messages, thinkingState }: ChatBoxProps) {
               finalAnswer={msg.text}
               isLatest={isLatest && !isLive}
               thinkingElapsed={msg.thinkingElapsed}
+              stopped={msg.stopped}
             />
           );
         }
