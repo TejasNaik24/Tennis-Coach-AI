@@ -110,7 +110,7 @@ const ThinkingBlock = ({
     prevPhase.current = thinkingState.phase;
   }, [thinkingState?.phase]);
 
-  const isLive = thinkingState && thinkingState.phase !== "idle";
+  const isLive = thinkingState && (thinkingState.phase === "thinking" || thinkingState.phase === "generating");
   const phase = thinkingState?.phase || "idle";
   const elapsed = thinkingState?.elapsed || 0;
 
@@ -203,7 +203,7 @@ function ChatBox({ messages, thinkingState }: ChatBoxProps) {
     prevLength.current = messages.length;
   }, [messages]);
 
-  const isLive = thinkingState && thinkingState.phase !== "idle";
+  const isLive = thinkingState && (thinkingState.phase === "thinking" || thinkingState.phase === "generating");
 
   return (
     <div id="chat-box" className={glow ? "glow-once" : ""}>
