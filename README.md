@@ -5,7 +5,6 @@ A global voice-enabled AI tennis coach. This project was built using React and T
 Check out the website here!:
 
  🔗 **[https://tennis-coach-ai.vercel.app](https://tennis-coach-ai.vercel.app)**
- > Note: With the free version of render being used, it will cause a delay when starting the backend 15 minutes after the app has not been in use. If you send a request and get an error, retry again and wait a little longer for the backend to start up, which can take up to 3 minutes.
 
 ---
 
@@ -17,6 +16,18 @@ Check out the website here!:
 - 🔊 Voice Mode: Talk naturally, like a real conversation — speak, and it automatically sends your message and talks back to you.
 - 🧼 Dynamic UI with input resizing and smooth voice mode transitions
 - ✅ Fully keyboard accessible
+
+---
+
+## 🧠 Advanced Thinking Process
+
+Tennis-Coach-AI doesn't just give you an answer; it simulates a coaching thought process for a more transparent and engaging experience.
+
+- **Pulse-Streaming**: Thoughts appear in pulses (sentence by sentence), making the reasoning phase feel dynamic and fast.
+- **Expandable Reasoning**: Toggle the "Thought for Xs" block to see exactly how the coach derived its advice from your query.
+- **Seamless Transitions**: The AI transitions smoothly from internal reasoning to direct coaching with a premium character-by-character typewriter effect.
+- **Persistent Stop Control**: A sleek stop button allows you to interrupt the coach at any time during both the thinking and generating phases.
+- **Partial Preservation**: Stopping a response mid-way preserves the thoughts and text generated so far, ensuring no data is lost during the conversation.
 
 ---
 
