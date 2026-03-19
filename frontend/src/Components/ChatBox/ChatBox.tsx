@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, memo } from "react";
 import "./ChatBox.css";
 
 type Message = {
@@ -19,7 +19,7 @@ interface ChatBoxProps {
   onProgress?: (text: string) => void;
 }
 
-const Typewriter = ({ 
+const Typewriter = memo(({ 
   text, 
   speed = 15, 
   stopped = false,
@@ -48,10 +48,10 @@ const Typewriter = ({
 
   // No fallback to full text: always start from empty to prevent flashes
   return <>{displayed}</>;
-};
+});
 
 /* ── ThinkingBlock ── */
-const ThinkingBlock = ({
+const ThinkingBlock = memo(({
   thinkingState,
   finalThinking,
   finalAnswer,
@@ -206,10 +206,10 @@ const ThinkingBlock = ({
   }
 
   return null;
-};
+});
 
 /* ── ChatBox ── */
-function ChatBox({ messages, thinkingState, onProgress }: ChatBoxProps) {
+const ChatBox = memo(({ messages, thinkingState, onProgress }: ChatBoxProps) => {
   const [glow, setGlow] = useState(false);
   const prevLength = useRef(messages.length);
 
@@ -259,7 +259,7 @@ function ChatBox({ messages, thinkingState, onProgress }: ChatBoxProps) {
       )}
     </div>
   );
-}
+});
 
 export default ChatBox;
 export type { Message };

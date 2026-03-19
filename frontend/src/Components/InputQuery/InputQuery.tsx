@@ -411,12 +411,16 @@ function InputQuery(): React.ReactElement | null {
       .catch(handleApiError);
   };
 
+  const handleProgress = useCallback((prog: string) => {
+    typewriterProgressRef.current = prog;
+  }, []);
+
   return (
     <>
       <ChatBox 
         messages={messages} 
         thinkingState={thinkingState} 
-        onProgress={(prog) => { typewriterProgressRef.current = prog; }}
+        onProgress={handleProgress}
       />
 
       {/* Manual Scroll Button */}
