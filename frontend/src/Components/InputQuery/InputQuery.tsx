@@ -32,6 +32,8 @@ function InputQuery(): React.ReactElement | null {
     elapsed: number;
     thinking: string;
   }>({ phase: "idle", elapsed: 0, thinking: "" });
+
+  type ThinkingState = typeof thinkingState;
   const [showScrollButton, setShowScrollButton] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -160,7 +162,7 @@ function InputQuery(): React.ReactElement | null {
     setThinkingState({ phase: "thinking", elapsed: 0, thinking: "" });
     const start = Date.now();
     timerRef.current = setInterval(() => {
-      setThinkingState((prev) => ({
+      setThinkingState((prev: ThinkingState) => ({
         ...prev,
         elapsed: Math.floor((Date.now() - start) / 1000),
       }));
@@ -209,7 +211,7 @@ function InputQuery(): React.ReactElement | null {
   }, [messages.length, scrollToBottom]);
 
   const addMessage = useCallback((type: "user" | "ai", text: string, thinking?: string, thinkingElapsed?: number) => {
-    setMessages((prev) => [...prev, { type, text, thinking, thinkingElapsed }]);
+    setMessages((prev: Message[]) => [...prev, { type, text, thinking, thinkingElapsed }]);
 
     if (type === "ai" && voiceMode) {
       const utterance = new SpeechSynthesisUtterance(text);
@@ -263,7 +265,7 @@ function InputQuery(): React.ReactElement | null {
     } else if (thinkingState.phase === "typing") {
       // Capture the exact typewriter progress to freeze it permanently
       const progress = typewriterProgressRef.current;
-      setMessages((prev) => {
+      setMessages((prev: Message[]) => {
         const newMsgs = [...prev];
         for (let i = newMsgs.length - 1; i >= 0; i--) {
           if (newMsgs[i].type === "ai") {
@@ -292,7 +294,7 @@ function InputQuery(): React.ReactElement | null {
       typewriterProgressRef.current = ""; // Clear for new reply
 
       // Step 1: Keep thinking phase, but feed in the thinking text so it streams
-      setThinkingState((prev: any) => ({
+      setThinkingState((prev: ThinkingState) => ({
         ...prev,
         phase: "thinking",
         thinking: thinkingText,
@@ -306,7 +308,7 @@ function InputQuery(): React.ReactElement | null {
         apiTimeoutRef.current = null;
         stopThinkingTimer();
 
-        setThinkingState((prev: any) => {
+        setThinkingState((prev: ThinkingState) => {
           if (prev.phase === "idle") return prev;
           const finalElapsed = prev.elapsed;
           
